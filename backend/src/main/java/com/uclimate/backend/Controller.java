@@ -25,7 +25,7 @@ public class Controller {
                 "1600 Amphitheatre Parkway Mountain View, CA 94043").await();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         System.out.println(gson.toJson(results[0].addressComponents));
-        // Invoke .shutdown() after your application is done makinug requests
+        // Invoke .shutdown() after your application is done making requests
         context.shutdown();
         return gson.toJson(results[0].addressComponents);
     }
