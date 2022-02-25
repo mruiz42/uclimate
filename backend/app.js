@@ -1,13 +1,14 @@
+require('dotenv').config()
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const app = express();
 
 const indexRouter = require('./routes/index');
 const weatherRouter = require('./routes/weatherRouter');
 const navigatorRoute = require('./routes/navigatorRouter');
-const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
