@@ -1,0 +1,22 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.rootContainer {
+  background: #ffffff;
+  min-height: 100vh;
+  height: 100%;
+  width: 100vw;
+  margin: auto;
+}
+
+.content {
+  max-width: 1264px;
+  background: #f1f1f1;
+  margin: auto;
+  height: calc(100% - 56px);
+  min-height: 100vh;
+}

@@ -8,7 +8,7 @@ const app = express();
 
 const indexRouter = require('./routes/index');
 const weatherRouter = require('./routes/weatherRouter');
-const navigatorRoute = require('./routes/navigatorRouter');
+const mapsRouter = require('./routes/mapsRouter');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/weather', weatherRouter);
-app.use('/maps', navigatorRoute)
+app.use('/maps', mapsRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
