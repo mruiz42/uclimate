@@ -23,3 +23,21 @@ exports.getDirections = (req, res, next) => {
             res.send(e)
         });
 }
+
+exports.placeQueryAutocomplete = (req, res, next) => {
+    const client = new Client({});
+    client.placeQueryAutocomplete({
+            params: {
+                key: api_key
+            },
+            timeout: 1000 // milliseconds
+        }, axios)
+            .then(r => {
+                console.log(r.data.results[0].elevation);
+                res.send(r.data.results)
+            })
+            .catch(e => {
+                console.log(e);
+                res.send(e)
+            });
+}

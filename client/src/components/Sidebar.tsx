@@ -1,15 +1,19 @@
 import {Button, Container, Dropdown, Form} from "react-bootstrap";
-import LocationForm from "./LocationForm";
+import LocationSelectForm from "./LocationSelectForm";
+import {forwardRef} from "react";
 
-const Sidebar = (props: any) => {
+const Sidebar = (props: any, ref: any) => {
+  const {formData, setFormData} = props;
   return (
     <Container>
-      <LocationForm />
+      <LocationSelectForm
+        formData={formData}
+        setFormData={setFormData}
+        ref={ref}
+      />
     </Container>
-
-
 )
 }
 
 
-export default Sidebar;
+export default forwardRef(Sidebar);
