@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/weather', weatherRouter);
-app.use('/navigator', navigatorRoute)
+app.use('/maps', navigatorRoute)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
