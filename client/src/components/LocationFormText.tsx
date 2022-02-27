@@ -46,11 +46,12 @@ const LocationFormText = (props: any, ref: any) => {
   }
 
   const handleDropdownClick = (event: any, id: number) => {
+    const formIdentifier = label.toLowerCase();
     const selection = queryPredictions[id];
     if (ref.current) {
       const newFormData = formData;
-      newFormData.origin.data = selection;
-      ref.current.value = newFormData.origin.data.description;
+      newFormData[formIdentifier].data = selection;
+      ref.current.value = newFormData[formIdentifier].data.description;
     }
     setShowDropdown(false)
   }
