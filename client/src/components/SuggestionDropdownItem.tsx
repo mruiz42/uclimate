@@ -1,12 +1,17 @@
-import {Dropdown} from "react-bootstrap";
-import {useState} from "react";
+import Dropdown from 'react-bootstrap/Dropdown'
 
+const SuggestionDropdownItem = (props: any) => {
+  const {name, id, handleDropdownClick} = props;
 
-const SuggestionDropdownMenu = (props: any) => {
-  const {name, id} = props;
   return (
-    <Dropdown.Item eventKey={id}>{name}</Dropdown.Item>
-  )
+      <Dropdown.Item eventKey={id}
+                     as={"div"}
+                     onClick={(e)=> {
+                       handleDropdownClick(e, id);
+                     }}>
+          {name}
+      </Dropdown.Item>
+  );
 }
 
-export default SuggestionDropdownMenu;
+export default SuggestionDropdownItem;

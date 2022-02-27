@@ -8,18 +8,111 @@ const SERVER = 'http://localhost:4200';
 const form = {
   origin: {
     data: {
-
     },
     geolocation: {}
   },
   destination: {
     data: {
-
     },
     geolocation: {}
   }
 }
 
+/*
+{
+  "description": "390 Allegan Cir, San Jose, CA 95123, USA",
+  "matched_substrings": [
+    {
+      "length": 3,
+      "offset": 0
+    },
+    {
+      "length": 11,
+      "offset": 4
+    },
+    {
+      "length": 8,
+      "offset": 17
+    },
+    {
+      "length": 2,
+      "offset": 27
+    },
+    {
+      "length": 5,
+      "offset": 30
+    },
+    {
+      "length": 2,
+      "offset": 37
+    }
+  ],
+  "place_id": "ChIJ_5EGAtcxjoAR4tDBv6oidzQ",
+  "reference": "ChIJ_5EGAtcxjoAR4tDBv6oidzQ",
+  "structured_formatting": {
+    "main_text": "390 Allegan Cir",
+    "main_text_matched_substrings": [
+      {
+        "length": 3,
+        "offset": 0
+      },
+      {
+        "length": 11,
+        "offset": 4
+      }
+    ],
+    "secondary_text": "San Jose, CA 95123, USA",
+    "secondary_text_matched_substrings": [
+      {
+        "length": 8,
+        "offset": 0
+      },
+      {
+        "length": 2,
+        "offset": 10
+      },
+      {
+        "length": 5,
+        "offset": 13
+      },
+      {
+        "length": 2,
+        "offset": 20
+      }
+    ]
+  },
+  "terms": [
+    {
+      "offset": 0,
+      "value": "390"
+    },
+    {
+      "offset": 4,
+      "value": "Allegan Cir"
+    },
+    {
+      "offset": 17,
+      "value": "San Jose"
+    },
+    {
+      "offset": 27,
+      "value": "CA"
+    },
+    {
+      "offset": 30,
+      "value": "95123"
+    },
+    {
+      "offset": 37,
+      "value": "USA"
+    }
+  ],
+  "types": [
+    "premise",
+    "geocode"
+  ]
+}
+ */
 const App = () => {
   const [location, setLocation] = useState({});
   const [formData, setFormData] = useState(form);
@@ -57,6 +150,7 @@ const App = () => {
   }
 
   useEffect(() => {
+    // TODO: Check if this really needs to be updated -- check to see if data is already populated in origin?
     requestUserLocation();
   }, [])
 

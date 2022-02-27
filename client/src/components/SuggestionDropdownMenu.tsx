@@ -1,18 +1,29 @@
 import {useState} from "react";
-import {Dropdown} from "react-bootstrap";
+import Dropdown from 'react-bootstrap/Dropdown'
 import SuggestionDropdownItem from "./SuggestionDropdownItem";
 
-const SuggestionDropdownMenu = (props: { queryPredictions: Array<any>, showDropdown: boolean }) => {
-  const {queryPredictions, showDropdown} = props;
+const SuggestionDropdownMenu = (props: { queryPredictions: Array<any>, showDropdown: boolean, handleDropdownClick: any }) => {
+  const {queryPredictions, showDropdown, handleDropdownClick} = props;
 
   return(
-    <Dropdown.Menu show={showDropdown}>
+    <Dropdown.Menu show={showDropdown}
+                   onSelect={((eventKey, event) => {
+                     // event.preventDefault();
+                     console.log(eventKey)
+                   })}
+                   rootCloseEvent={"click"}
+    >
       <Dropdown.Header>Suggested Locations</Dropdown.Header>
-      {
-        queryPredictions.map((item, index, arr) => {
-          return(<SuggestionDropdownItem name={item.description} id={index} />)
-        })
-      }
+        {
+          queryPredictions.map((item, index) => {
+            return (
+              <SuggestionDropdownItem name={item.description}
+                                      key={index}
+                                      id={index}
+                                      handleDropdownClick={handleDropdownClick}
+            />)
+          })
+        }
     </Dropdown.Menu>
   )
 }

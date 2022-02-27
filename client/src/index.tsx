@@ -1,7 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import 'bootstrap';
+// import 'bootstrap/js/dist/dropdown';
+import "../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.js';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

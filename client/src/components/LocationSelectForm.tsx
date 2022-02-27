@@ -7,12 +7,7 @@ const LocationSelectForm = (props: any, ref: any) => {
   const {formData, setFormData} = props;
   const {originRef, destinationRef} = ref.current;
 
-  const handleFindPlaces = () => {
-    fetch(SERVER + "/maps/places", )
-      .then(r => {
-        console.log("hi")
-      })
-  }
+
   return (
     <Form>
       <LocationFormText label={"Origin"}
@@ -21,7 +16,6 @@ const LocationSelectForm = (props: any, ref: any) => {
                         controlId={"directionForm.ControlInput1"}
                         formData={formData}
                         setFormData={setFormData}
-                        handleFindPlaces={handleFindPlaces}
       />
 
       <LocationFormText label={"Destination"}
@@ -30,7 +24,6 @@ const LocationSelectForm = (props: any, ref: any) => {
                         controlId={"directionForm.ControlInput2"}
                         formData={formData}
                         setFormData={setFormData}
-                        handleFindPlaces={handleFindPlaces}
       />
       <Button variant="info">
         {"Go >"}

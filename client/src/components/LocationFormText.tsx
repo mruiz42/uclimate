@@ -12,6 +12,7 @@ const LocationFormText = (props: any, ref: any) => {
   const handleChange = (event: any) => {
     // const formCopy = formData;
     // console.log(formData);
+    // TODO: Reduce the amount of calls here -- implement client side caching?
     const query = ref.current.value;
     axios.get(SERVER + "/maps/queryPlaces", {
       params: {
@@ -24,14 +25,33 @@ const LocationFormText = (props: any, ref: any) => {
       })
       .catch(err => {
         console.log(err);
-
       })
   }
+
   const handleFocus = (event: any) => {
-    setShowDropdown(true)
+    if (queryPredictions.length !== 0) {
+      setShowDropdown(true);
+    } else {
+      setShowDropdown(false);
+    }
   }
 
   const handleBlur = (event: any) => {
+    // https://www.sitepoint.com/community/t/jquery-problem-with-blur-event/5282
+    // TODO: This is really hacky and I spent 2 hours figuring this out... Terrible
+    setTimeout(() => {
+      console.log("timeout..")
+      setShowDropdown(false);
+    }, 500)
+  }
+
+  const handleDropdownClick = (event: any, id: number) => {
+    const selection = queryPredictions[id];
+    if (ref.current) {
+      const newFormData = formData;
+      newFormData.origin.data = selection;
+      ref.current.value = newFormData.origin.data.description;
+    }
     setShowDropdown(false)
   }
 
@@ -43,9 +63,15 @@ const LocationFormText = (props: any, ref: any) => {
                    placeholder={placeholder}
                    onChange={handleChange}
                    onFocus={handleFocus}
-                   onBlur={handleBlur}
+                   onBlurCapture={handleBlur}
       />
-      <SuggestionDropdownMenu queryPredictions={queryPredictions} showDropdown={showDropdown}/>
+      { ref.current && ref.current.value !== 0 &&
+        <SuggestionDropdownMenu queryPredictions={queryPredictions}
+                                showDropdown={showDropdown}
+                                handleDropdownClick={handleDropdownClick}
+        />
+      }
+
     </Form.Group>
   )
 
