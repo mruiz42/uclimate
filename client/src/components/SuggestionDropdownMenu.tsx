@@ -2,15 +2,17 @@ import {useState} from "react";
 import {Dropdown} from "react-bootstrap";
 import SuggestionDropdownItem from "./SuggestionDropdownItem";
 
-const SuggestionDropdownMenu = (props: any) => {
-  const {data} = props;
-  const [isVisible, setIsVisible] = useState(false);
+const SuggestionDropdownMenu = (props: { queryPredictions: Array<any>, showDropdown: boolean }) => {
+  const {queryPredictions, showDropdown} = props;
 
   return(
-    <Dropdown.Menu show={isVisible}>
+    <Dropdown.Menu show={showDropdown}>
       <Dropdown.Header>Suggested Locations</Dropdown.Header>
-      {/*TODO: use .map() here*/}
-      <SuggestionDropdownItem name={"test"} id={1} />
+      {
+        queryPredictions.map((item, index, arr) => {
+          return(<SuggestionDropdownItem name={item.description} id={index} />)
+        })
+      }
     </Dropdown.Menu>
   )
 }

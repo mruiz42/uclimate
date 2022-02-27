@@ -5,6 +5,13 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const app = express();
+const cors = require('cors');
+// CORS
+const corsOptions = {
+  origin: 'http://localhost:3000',
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  credentials: true           // set credentials true for secure httpOnly cookie
+}
 
 const indexRouter = require('./routes/index');
 const weatherRouter = require('./routes/weatherRouter');
@@ -14,6 +21,7 @@ const mapsRouter = require('./routes/mapsRouter');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
