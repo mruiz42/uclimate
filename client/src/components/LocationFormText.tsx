@@ -10,8 +10,6 @@ const LocationFormText = (props: any, ref: any) => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleChange = (event: any) => {
-    // const formCopy = formData;
-    // console.log(formData);
     // TODO: Reduce the amount of calls here -- implement client side caching?
     const query = ref.current.value;
     axios.get(SERVER + "/maps/queryPlaces", {
@@ -21,7 +19,10 @@ const LocationFormText = (props: any, ref: any) => {
     })
       .then(res => {
         console.log(res);
-        setQueryPredictions(res.data.predictions)
+        setQueryPredictions(res.data.predictions);
+        if(res.data.predictions && res.data.predictions.length !== 0) {
+          setShowDropdown(true);
+        }
       })
       .catch(err => {
         console.log(err);
@@ -29,7 +30,12 @@ const LocationFormText = (props: any, ref: any) => {
   }
 
   const handleFocus = (event: any) => {
-    if (queryPredictions.length !== 0) {
+    // Handle when to show the dropdown menu and when to hide it
+    // This is called when the text form is in focus and when there are results to be shown
+    if (!queryPredictions) {
+      setShowDropdown(false);
+      setQueryPredictions([]);
+    } else if (queryPredictions.length !== 0) {
       setShowDropdown(true);
     } else {
       setShowDropdown(false);
@@ -40,7 +46,7 @@ const LocationFormText = (props: any, ref: any) => {
     // https://www.sitepoint.com/community/t/jquery-problem-with-blur-event/5282
     // TODO: This is really hacky and I spent 2 hours figuring this out... Terrible
     setTimeout(() => {
-      console.log("timeout..")
+      console.log("DEBUG: Blur timeout :)")
       setShowDropdown(false);
     }, 500)
   }

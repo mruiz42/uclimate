@@ -176,28 +176,28 @@ const App = () => {
     setZoom(m.getZoom()!);
     setCenter(m.getCenter()!.toJSON());
   };
+
   useEffect(() => {
     // TODO: Check if this really needs to be updated -- check to see if data is already populated in origin?
     requestUserLocation();
   }, [])
+
   const api: any = process.env.REACT_APP_API_KEY;
   return (
-    // <Container fluid className={"App"}>
-    //   <Sidebar ref={ref} formData={formData} setFormData={setFormData}/>
-    //   <Container>
-
-      <Wrapper apiKey={api} render={render}>
-        <MapView
-          center={center}
-          onClick={onClick}
-          onIdle={onIdle}
-          zoom={zoom}
-          style={{ flexGrow: "1", height: "100%" }}>
-
-        </MapView>
-      </Wrapper>
-      // {/*</Container>*/}
-    // </Container>
+    <Container fluid className={style.AppContainer}>
+      <Sidebar ref={ref} formData={formData} setFormData={setFormData}/>
+        <div className={style.mapViewContainer}>
+          <Wrapper apiKey={api} render={render}>
+            <MapView
+              center={center}
+              onClick={onClick}
+              onIdle={onIdle}
+              style={{ flexGrow: "1", height: "100%" }}
+              zoom={zoom}>
+            </MapView>
+          </Wrapper>
+        </div>
+    </Container>
   );
 }
 

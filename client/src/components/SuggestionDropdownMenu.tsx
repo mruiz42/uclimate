@@ -14,7 +14,7 @@ const SuggestionDropdownMenu = (props: { queryPredictions: Array<any>, showDropd
                    rootCloseEvent={"click"}
     >
       <Dropdown.Header>Suggested Locations</Dropdown.Header>
-        {
+        { queryPredictions &&
           queryPredictions.map((item, index) => {
             return (
               <SuggestionDropdownItem name={item.description}

@@ -1,10 +1,11 @@
 import React from "react";
 import { createCustomEqual } from "fast-equals";
 import {isLatLngLiteral} from "@googlemaps/typescript-guards";
+import style from '../style/App.module.scss';
 
 interface MapProps extends google.maps.MapOptions {
-  style: { [key: string]: string };
   onClick?: (e: google.maps.MapMouseEvent) => void;
+  style: { [key: string]: string };
   onIdle?: (map: google.maps.Map) => void;
 }
 
@@ -12,8 +13,8 @@ interface MapProps extends google.maps.MapOptions {
 const MapView: React.FC<MapProps> = ({
                                    onClick,
                                    onIdle,
+                                   styles,
                                    children,
-                                   style,
                                    ...options
                                  }) => {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -86,7 +87,7 @@ const MapView: React.FC<MapProps> = ({
 
   return (
     <>
-      <div ref={ref} style={style} />
+      <div ref={ref} style={style} className={style.mapView}/>
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
           // set the map prop on the child component
