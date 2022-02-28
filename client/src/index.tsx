@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import './style/index.css';
 import 'bootstrap';
 // import 'bootstrap/js/dist/dropdown';
 import "../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js";

@@ -1,6 +1,12 @@
 import React, {createRef, forwardRef, useEffect, useRef, useState} from 'react';
-import {Button, Container, Dropdown, Form} from "react-bootstrap";
+import {Button, Container, Dropdown, Form} from "react-bootstrap"
+import { Wrapper, Status } from "@googlemaps/react-wrapper";
+
+import style from './style/App.module.scss';
+
 import Sidebar from "./components/Sidebar";
+import MapView from './components/MapView';
+
 const axios = require('axios');
 const SERVER = 'http://localhost:4200';
 
@@ -17,6 +23,10 @@ const form = {
     geolocation: {}
   }
 }
+
+const render = (status: Status) => {
+  return <h1>{status}</h1>;
+};
 
 /*
 {
@@ -113,12 +123,20 @@ const form = {
   ]
 }
  */
+
 const App = () => {
   const [location, setLocation] = useState({});
   const [formData, setFormData] = useState(form);
   const originRef = useRef<any>({});
   const destinationRef = useRef<any>({});
   const ref = useRef({ originRef, destinationRef });
+
+  const [clicks, setClicks] = React.useState<google.maps.LatLng[]>([]);
+  const [zoom, setZoom] = React.useState(3); // initial zoom
+  const [center, setCenter] = React.useState<google.maps.LatLngLiteral>({
+    lat: 0,
+    lng: 0,
+  });
 
   const requestUserLocation = () => {
     navigator.geolocation.getCurrentPosition((loc) => {
@@ -148,18 +166,39 @@ const App = () => {
         })
     });
   }
+  const onClick = (e: google.maps.MapMouseEvent) => {
+    // avoid directly mutating state
+    setClicks([...clicks, e.latLng!]);
+  };
 
+  const onIdle = (m: google.maps.Map) => {
+    console.log("onIdle");
+    setZoom(m.getZoom()!);
+    setCenter(m.getCenter()!.toJSON());
+  };
   useEffect(() => {
     // TODO: Check if this really needs to be updated -- check to see if data is already populated in origin?
     requestUserLocation();
   }, [])
-
+  const api: any = process.env.REACT_APP_API_KEY;
   return (
-    <Container fluid className={"App"}>
-      <Sidebar ref={ref} formData={formData} setFormData={setFormData}/>
-    </Container>
+    // <Container fluid className={"App"}>
+    //   <Sidebar ref={ref} formData={formData} setFormData={setFormData}/>
+    //   <Container>
+
+      <Wrapper apiKey={api} render={render}>
+        <MapView
+          center={center}
+          onClick={onClick}
+          onIdle={onIdle}
+          zoom={zoom}
+          style={{ flexGrow: "1", height: "100%" }}>
+
+        </MapView>
+      </Wrapper>
+      // {/*</Container>*/}
+    // </Container>
   );
 }
-
 
 export default App;
