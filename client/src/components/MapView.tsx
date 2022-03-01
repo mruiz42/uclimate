@@ -4,6 +4,7 @@ import {isLatLngLiteral} from "@googlemaps/typescript-guards";
 import style from '../style/App.module.scss';
 
 interface MapProps extends google.maps.MapOptions {
+  formData: ({});
   onClick?: (e: google.maps.MapMouseEvent) => void;
   style: { [key: string]: string };
   onIdle?: (map: google.maps.Map) => void;
@@ -11,6 +12,7 @@ interface MapProps extends google.maps.MapOptions {
 
 
 const MapView: React.FC<MapProps> = ({
+                                   formData,
                                    onClick,
                                    onIdle,
                                    styles,
@@ -59,6 +61,7 @@ const MapView: React.FC<MapProps> = ({
     if (ref.current && !map) {
       setMap(new window.google.maps.Map(ref.current, {}));
     }
+
   }, [ref, map]);
 
   // because React does not do deep comparisons, a custom hook is used

@@ -5,7 +5,7 @@ import axios from "axios";
 const SERVER = 'http://localhost:4200';
 
 const LocationFormText = (props: any, ref: any) => {
-  const {label, placeholder, controlId, formData, setFormData, handleFindPlaces} = props;
+  const {label, placeholder, controlId, formData} = props;
   const [queryPredictions, setQueryPredictions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
