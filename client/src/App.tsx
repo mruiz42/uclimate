@@ -36,7 +36,9 @@ const App = () => {
   const destinationRef = useRef<any>({});
   const ref = useRef({ originRef, destinationRef });
 
-  const [markers, setMarkets] = React.useState<google.maps.LatLng[]>([]);
+
+  const [map, setMap] = React.useState<google.maps.Map | null>(null);
+  const [markers, setMarkers] = React.useState<google.maps.Marker[]>([]);
   const [clicks, setClicks] = React.useState<google.maps.LatLng[]>([]);
   const [zoom, setZoom] = React.useState(3); // initial zoom
   const [center, setCenter] = React.useState<google.maps.LatLngLiteral>({
@@ -65,6 +67,8 @@ const App = () => {
           console.log(res.data);
           setFormData({...formData, origin: {data: res.data}})
           originRef.current.value = res.data[0].formatted_address;
+          console.log(latlng)
+          addMarker(latlng);
         })
         .catch((e: any) => {
           console.log(e);
@@ -84,6 +88,37 @@ const App = () => {
 
   };
 
+// Adds a marker to the map and push to the array.
+  function addMarker(position: google.maps.LatLng | google.maps.LatLngLiteral) {
+    const marker = new google.maps.Marker({
+      position,
+      map,
+    });
+    setMarkers([...markers, marker])
+  }
+
+// Sets the map on all markers in the array.
+  function setMapOnAll(map: google.maps.Map | null) {
+    for (let i = 0; i < markers.length; i++) {
+      markers[i].setMap(map);
+    }
+  }
+
+// Removes the markers from the map, but keeps them in the array.
+  function hideMarkers(): void {
+    setMapOnAll(null);
+  }
+
+// Shows any markers currently in the array.
+  function showMarkers(): void {
+    setMapOnAll(map);
+  }
+
+// Deletes all markers in the array by removing references to them.
+  function deleteMarkers(): void {
+    hideMarkers();
+    setMarkers([]);
+  }
   useEffect(() => {
     // TODO: Check if this really needs to be updated -- check to see if data is already populated in origin?
     requestUserLocation();
@@ -96,6 +131,9 @@ const App = () => {
         <div className={style.mapViewContainer}>
           <Wrapper apiKey={api_key} render={render}>
             <MapView
+              map={map}
+              setMap={setMap}
+              markers={markers}
               formData={formData}
               center={center}
               onClick={onClick}
