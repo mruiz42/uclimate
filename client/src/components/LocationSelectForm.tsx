@@ -6,9 +6,8 @@ import style from './style/LocationSelectForm.module.scss';
 const SERVER = process.env.REACT_APP_API_URL;
 
 const LocationSelectForm = (props: any, ref: any) => {
-  const {formData, setFormData, requestUserLocation} = props;
+  const {formData, setFormData, requestUserLocation, geolocation} = props;
   const {originRef, destinationRef} = ref.current;
-
 
   return (
     <Form>
@@ -18,6 +17,7 @@ const LocationSelectForm = (props: any, ref: any) => {
                         controlId={"directionForm.ControlInput1"}
                         formData={formData}
                         setFormData={setFormData}
+                        geolocation={geolocation}
       />
       <div className={style.geolocationButton} onClick={requestUserLocation}>
         Use my location
@@ -28,6 +28,7 @@ const LocationSelectForm = (props: any, ref: any) => {
                         controlId={"directionForm.ControlInput2"}
                         formData={formData}
                         setFormData={setFormData}
+                        geolocation={geolocation}
       />
       <Button variant="info"
               style={{ margin: " 10px 0 0 0" }}

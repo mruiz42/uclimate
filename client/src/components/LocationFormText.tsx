@@ -3,19 +3,23 @@ import SuggestionDropdownMenu from "./SuggestionDropdownMenu";
 import React, {forwardRef, useState} from "react";
 import axios from "axios";
 import style from './style/LocationFormText.module.scss';
-const SERVER = 'http://localhost:4200';
+
+const SERVER = process.env.REACT_APP_API_URL;
 
 const LocationFormText = (props: any, ref: any) => {
-  const {label, placeholder, controlId, formData} = props;
+  const {label, placeholder, controlId, formData, geolocation} = props;
   const [queryPredictions, setQueryPredictions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleChange = (event: any) => {
     // TODO: Reduce the amount of calls here -- implement client side caching?
+    // TODO: Include a radius based on origin
     const query = ref.current.value;
     axios.get(SERVER + "/maps/queryPlaces", {
       params: {
-        q: query
+        q: query,
+        lat: geolocation.lat,
+        lng: geolocation.lng
       }
     })
       .then(res => {

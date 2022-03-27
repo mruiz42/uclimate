@@ -46,13 +46,20 @@ exports.reverseGeocode = (req, res, next) => {
 
 exports.queryPlaces = (req, res, next) => {
   const query = req.query.q;
+  const lat = req.query.lat;
+  const lng = req.query.lng;
+  let params = {
+    input: query,
+    key: api_key
+  }
+  if (lat && lng) {
+    params.location = lat.toString() + "," + lng.toString();
+    params.radius = 500;
+  }
   const client = new Client({});
   client
     .placeQueryAutocomplete({
-      params: {
-        input: query,
-        key: api_key,
-      }
+      params: params
     })
     .then((r) => {
       res.send(r.data)
