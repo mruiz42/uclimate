@@ -2,6 +2,7 @@ import {useState} from "react";
 import Dropdown from 'react-bootstrap/Dropdown'
 import SuggestionDropdownItem from "./SuggestionDropdownItem";
 
+
 const SuggestionDropdownMenu = (props: { queryPredictions: Array<any>, showDropdown: boolean, handleDropdownClick: any }) => {
   const {queryPredictions, showDropdown, handleDropdownClick} = props;
 

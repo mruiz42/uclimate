@@ -127,7 +127,7 @@ const App = () => {
   const api_key: any = process.env.REACT_APP_API_KEY;
   return (
     <Container fluid className={style.AppContainer}>
-      <Sidebar ref={ref} formData={formData} setFormData={setFormData}/>
+      <Sidebar ref={ref} formData={formData} setFormData={setFormData} requestUserLocation={requestUserLocation}/>
         <div className={style.mapViewContainer}>
           <Wrapper apiKey={api_key} render={render}>
             <MapView

@@ -2,6 +2,7 @@ import {Form, FormControl} from "react-bootstrap";
 import SuggestionDropdownMenu from "./SuggestionDropdownMenu";
 import React, {forwardRef, useState} from "react";
 import axios from "axios";
+import style from './style/LocationFormText.module.scss';
 const SERVER = 'http://localhost:4200';
 
 const LocationFormText = (props: any, ref: any) => {
@@ -63,7 +64,7 @@ const LocationFormText = (props: any, ref: any) => {
   }
 
   return (
-    <Form.Group className="mb-3" controlId={controlId} >
+    <Form.Group className={style.formbox} controlId={controlId} >
       <Form.Label>{label}</Form.Label >
       <FormControl type="text"
                    ref={ref}

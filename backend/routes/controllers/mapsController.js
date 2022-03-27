@@ -6,7 +6,7 @@ const api_key = process.env.GOOGLE_MAPS_API_KEY;
 exports.directions = (req, res, next) => {
   const client = new Client({});
   client
-    .direction({
+    .directions({
       params: {
         // TODO: this
         destination: 1,
@@ -51,7 +51,7 @@ exports.queryPlaces = (req, res, next) => {
     .placeQueryAutocomplete({
       params: {
         input: query,
-        key: api_key
+        key: api_key,
       }
     })
     .then((r) => {
