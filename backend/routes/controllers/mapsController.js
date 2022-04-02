@@ -2,16 +2,21 @@ const {Client, GeocodeRequest} = require("@googlemaps/google-maps-services-js");
 const axios = require('axios').default;
 const api_key = process.env.GOOGLE_MAPS_API_KEY;
 
+
+// Google Directions API
 // https://developers.google.com/maps/documentation/directions/get-directions
 exports.directions = (req, res, next) => {
+  const origin = req.query.origin;
+  const destination = req.query.destination;
+  // concert text form to placeid
   const client = new Client({});
   client
     .directions({
       params: {
-        // TODO: this
-        destination: 1,
-        origin: 1,
-        key: api_key
+        origin: origin,
+        destination: destination,
+        key: api_key,
+        travelMode: "DRIVING"
       },
       timeout: 1000 // milliseconds
     }, axios)
@@ -44,6 +49,8 @@ exports.reverseGeocode = (req, res, next) => {
       });
 }
 
+// Google Places API
+// https://developers.google.com/maps/documentation/places/web-service
 exports.queryPlaces = (req, res, next) => {
   const query = req.query.q;
   const lat = req.query.lat;
@@ -52,10 +59,13 @@ exports.queryPlaces = (req, res, next) => {
     input: query,
     key: api_key
   }
-  if (lat && lng) {
-    params.location = lat.toString() + "," + lng.toString();
-    params.radius = 500;
+
+  if (!lat || !lng) {
+    res.send()
   }
+  params.location = lat.toString() + "," + lng.toString();
+  params.radius = 500;
+
   const client = new Client({});
   client
     .placeQueryAutocomplete({
