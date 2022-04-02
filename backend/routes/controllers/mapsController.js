@@ -1,11 +1,12 @@
 const {Client, GeocodeRequest} = require("@googlemaps/google-maps-services-js");
+const {handleResponse} = require("../../utils/handleResponse");
 const axios = require('axios').default;
 const api_key = process.env.GOOGLE_MAPS_API_KEY;
 
 
 // Google Directions API
 // https://developers.google.com/maps/documentation/directions/get-directions
-exports.directions = (req, res, next) => {
+exports.getDirections = (req, res, next) => {
   const origin = req.query.origin;
   const destination = req.query.destination;
   // concert text form to placeid
@@ -21,11 +22,11 @@ exports.directions = (req, res, next) => {
       timeout: 1000 // milliseconds
     }, axios)
     .then(r => {
-      res.send(r.data.results)
+      handleResponse(req, res, 200, r.data.results);
     })
     .catch(e => {
       console.log(e);
-      res.send("error")
+      handleResponse(req, res, 500);
     });
 }
 
@@ -41,11 +42,11 @@ exports.reverseGeocode = (req, res, next) => {
       timeout: 1000 // milliseconds
     }, axios)
       .then(r => {
-        res.send(r.data.results)
+        handleResponse(req, res, 200, r.data.results);
       })
       .catch(e => {
         console.log(e);
-        res.send("error")
+        handleResponse(req, res, 500);
       });
 }
 
@@ -61,10 +62,10 @@ exports.queryPlaces = (req, res, next) => {
   }
 
   if (!lat || !lng) {
-    res.send()
+    handleResponse(req, res, 406);
   }
   params.location = lat.toString() + "," + lng.toString();
-  params.radius = 500;
+  params.radius = 500; // 500km
 
   const client = new Client({});
   client
@@ -72,9 +73,13 @@ exports.queryPlaces = (req, res, next) => {
       params: params
     })
     .then((r) => {
-      res.send(r.data)
+      // TODO: Note that the place ID, used to uniquely identify a place, is exempt from the caching restriction.
+      // You can therefore store place ID values indefinitely. The place ID is returned in the place_id field in Places API responses.
+      // https://developers.google.com/maps/documentation/places/web-service/policies#usage_limits
+      handleResponse(req, res, 200, r.data.results);
     })
     .catch((e) => {
-      res.send("error")
+      console.log(e);
+      handleResponse(req, res, 500);
     })
 }

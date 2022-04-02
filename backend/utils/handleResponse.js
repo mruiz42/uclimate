@@ -16,15 +16,18 @@ function handleResponse(req, res, statusCode, data, msgOverride) {
       break;
     case 403:
       isError = true;
-      message = msgOverride || 'Access to this resource is denied.';
+      message = msgOverride || 'Access to this resource is denied';
       break;
     case 404:
       isError = true;
       message = msgOverride || 'Not found';
       break;
+    case 406:
+      isError = true;
+      message = msgOverride || 'Not Acceptable'
     case 500:
       isError = true;
-      message = msgOverride || "Internal server error."
+      message = msgOverride || "Internal server error"
     default:
       break;
   }
