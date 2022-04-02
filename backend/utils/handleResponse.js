@@ -31,10 +31,11 @@ function handleResponse(req, res, statusCode, data, msgOverride) {
     default:
       break;
   }
-  const resObj = {};
-  resObj.error = isError;
-  resObj.message = message;
-
+  const resObj = data || {};
+  if (isError) {
+    resObj.error = true;
+    resObj.message = message;
+  }
   return res.status(statusCode).json(resObj);
 }
 

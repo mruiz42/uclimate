@@ -51,7 +51,7 @@ exports.reverseGeocode = (req, res, next) => {
 }
 
 // Google Places API
-// https://developers.google.com/maps/documentation/places/web-service
+// https://developers.google.com/maps/documentation/places/web-service/autocomplete
 exports.queryPlaces = (req, res, next) => {
   const query = req.query.q;
   const lat = req.query.lat;
@@ -76,7 +76,7 @@ exports.queryPlaces = (req, res, next) => {
       // TODO: Note that the place ID, used to uniquely identify a place, is exempt from the caching restriction.
       // You can therefore store place ID values indefinitely. The place ID is returned in the place_id field in Places API responses.
       // https://developers.google.com/maps/documentation/places/web-service/policies#usage_limits
-      handleResponse(req, res, 200, r.data.results);
+      handleResponse(req, res, 200, r.data);
     })
     .catch((e) => {
       console.log(e);
