@@ -22,7 +22,7 @@ exports.getDirections = (req, res, next) => {
       timeout: 1000 // milliseconds
     }, axios)
     .then(r => {
-      handleResponse(req, res, 200, r.data.results);
+      handleResponse(req, res, 200, r.data);
     })
     .catch(e => {
       console.log(e);
