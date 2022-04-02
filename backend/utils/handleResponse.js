@@ -1,13 +1,13 @@
 // Based on status definitions from Mozilla
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
 
-function handleResponse(req, res, statusCode, data, msg) {
-  let isError = false;
-  let message = msg;
+function handleResponse(req, res, statusCode, data, msgOverride) {
+  let isError = false;    // Initially set to false
+  let message = msgOverride;      // Override a custom message for response
   switch (statusCode) {
     case 200:
       isError = false;
-      message = msg || 'OK';
+      message = msgOverride || 'OK';
       break;
     case 204:
       return res.sendStatus(204);
@@ -16,19 +16,19 @@ function handleResponse(req, res, statusCode, data, msg) {
       break;
     case 403:
       isError = true;
-      message = msg || 'Access to this resource is denied.';
+      message = msgOverride || 'Access to this resource is denied.';
       break;
     case 404:
       isError = true;
-      message = msg || 'Not found';
+      message = msgOverride || 'Not found';
       break;
     case 500:
       isError = true;
-      message = msg || "Internal server error."
+      message = msgOverride || "Internal server error."
     default:
       break;
   }
-  const resObj = data || {};
+  const resObj = {};
   resObj.error = isError;
   resObj.message = message;
 
