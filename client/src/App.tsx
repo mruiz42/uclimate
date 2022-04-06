@@ -1,6 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Container} from "react-bootstrap"
-import {Status, Wrapper} from "@googlemaps/react-wrapper";
 
 import style from './style/App.module.scss';
 
@@ -24,9 +23,6 @@ const form = {
   }
 }
 
-const render = (status: Status) => {
-  return <h1>{status}</h1>;
-};
 
 
 const App = () => {
@@ -35,7 +31,6 @@ const App = () => {
   const originRef = useRef<any>({});
   const destinationRef = useRef<any>({});
   const ref = useRef({ originRef, destinationRef });
-
 
   const [map, setMap] = React.useState<google.maps.Map | null>(null);
   const [markers, setMarkers] = React.useState<google.maps.Marker[]>([]);
@@ -132,21 +127,10 @@ const App = () => {
                setFormData={setFormData}
                requestUserLocation={requestUserLocation}
                geolocation={geolocation}
+               map={map}
       />
         <div className={style.mapViewContainer}>
-          <Wrapper apiKey={api_key} render={render}>
-            <MapView
-              map={map}
-              setMap={setMap}
-              markers={markers}
-              formData={formData}
-              center={center}
-              onClick={onClick}
-              onIdle={onIdle}
-              style={{ flexGrow: "1", height: "100%" }}
-              zoom={zoom}>
-            </MapView>
-          </Wrapper>
+
         </div>
     </Container>
   );

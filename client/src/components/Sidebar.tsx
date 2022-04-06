@@ -5,7 +5,7 @@ import {forwardRef} from "react";
 import style from '../style/App.module.scss';
 
 const Sidebar = (props: any, ref: any) => {
-  const {formData, setFormData, requestUserLocation, geolocation} = props;
+  const {formData, setFormData, requestUserLocation, geolocation, map} = props;
   return (
     <div className={style.sidebar}>
       <LocationSelectForm
@@ -14,6 +14,7 @@ const Sidebar = (props: any, ref: any) => {
         requestUserLocation={requestUserLocation}
         ref={ref}
         geolocation={geolocation}
+        map={map}
       />
     </div>
 )
