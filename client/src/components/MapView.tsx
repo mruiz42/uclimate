@@ -1,8 +1,11 @@
 import React from "react";
 import { createCustomEqual } from "fast-equals";
 import {isLatLngLiteral} from "@googlemaps/typescript-guards";
+
 import style from '../style/App.module.scss';
 
+
+// https://googlemaps.github.io/react-wrapper/index.html
 interface MapProps extends google.maps.MapOptions {
   map: google.maps.Map | null;
   markers: google.maps.Marker[];
@@ -37,9 +40,7 @@ const MapView: React.FC<MapProps> = ({
       ) {
         return new google.maps.LatLng(a).equals(new google.maps.LatLng(b));
       }
-
       // TODO extend to other types
-
       // use fast-equals for other objects
       return deepEqual(a, b);
     }
@@ -47,11 +48,9 @@ const MapView: React.FC<MapProps> = ({
 
   function useDeepCompareMemoize(value: any) {
     const ref = React.useRef();
-
     if (!deepCompareEqualsForMaps(value, ref.current)) {
       ref.current = value;
     }
-
     return ref.current;
   }
 

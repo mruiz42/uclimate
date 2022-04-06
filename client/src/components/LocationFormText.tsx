@@ -13,7 +13,6 @@ const LocationFormText = (props: any, ref: any) => {
 
   const handleChange = (event: any) => {
     // TODO: Reduce the amount of calls here -- implement client side caching?
-    // TODO: Include a radius based on origin
     const query = ref.current.value;
     axios.get(SERVER + "/maps/queryPlaces", {
       params: {
@@ -60,11 +59,12 @@ const LocationFormText = (props: any, ref: any) => {
     const formIdentifier = label.toLowerCase();
     const selection = queryPredictions[id];
     if (ref.current) {
+      console.log(selection)
       const newFormData = formData;
       newFormData[formIdentifier].data = selection;
       ref.current.value = newFormData[formIdentifier].data.description;
     }
-    setShowDropdown(false)
+    setShowDropdown(false);
   }
 
   return (
@@ -83,7 +83,6 @@ const LocationFormText = (props: any, ref: any) => {
                                 handleDropdownClick={handleDropdownClick}
         />
       }
-
     </Form.Group>
   )
 

@@ -132,6 +132,7 @@ const App = () => {
                setFormData={setFormData}
                requestUserLocation={requestUserLocation}
                geolocation={geolocation}
+               map={map}
       />
         <div className={style.mapViewContainer}>
           <Wrapper apiKey={api_key} render={render}>
