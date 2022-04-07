@@ -1,6 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Container} from "react-bootstrap"
-import {Status, Wrapper} from "@googlemaps/react-wrapper";
 
 import style from './style/App.module.scss';
 

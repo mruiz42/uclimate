@@ -8,7 +8,6 @@ const SERVER = process.env.REACT_APP_API_URL;
 const LocationSelectForm = (props: any, ref: any) => {
   const {formData, setFormData, requestUserLocation, geolocation, map} = props;
   const {originRef, destinationRef} = ref.current;
-  directionsRenderer.setMap(map);
 
   const handleClick = (event: any) => {
     axios.get(SERVER + "/maps/directions", {

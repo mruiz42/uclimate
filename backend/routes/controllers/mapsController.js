@@ -39,7 +39,7 @@ exports.reverseGeocode = (req, res, next) => {
         latlng: coords,
         key: api_key
       },
-      timeout: 1000 // milliseconds
+      timeout: 4000 // milliseconds
     }, axios)
       .then(r => {
         handleResponse(req, res, 200, r.data.results);
