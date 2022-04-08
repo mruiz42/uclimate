@@ -1,21 +1,47 @@
-import React from "react";
-import { GoogleMap, Marker } from "react-google-maps"
-import style from '../style/App.module.scss';
+import React from 'react'
+import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 
+const containerStyle = {
+  width: '400px',
+  height: '400px'
+};
+
+const center = {
+  lat: -3.745,
+  lng: -38.523
+};
 
 const MapView = (props: any) => {
+  const {apiKey} = props;
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: apiKey
+  })
 
+  const [map, setMap] = React.useState(null)
 
+  const onLoad = React.useCallback(function callback(map) {
+    const bounds = new window.google.maps.LatLngBounds();
+    map.fitBounds(bounds);
+    setMap(map)
+  }, [])
 
-  return (
+  const onUnmount = React.useCallback(function callback(map) {
+    setMap(null)
+  }, [])
+
+  return isLoaded ? (
     <GoogleMap
-      defaultZoom={8}
-      defaultCenter={{ lat: -34.397, lng: 150.644 }}
+      mapContainerStyle={containerStyle}
+      center={center}
+      zoom={10}
+      onLoad={onLoad}
+      onUnmount={onUnmount}
     >
-      {props.isMarkerShown && <Marker position={{ lat: -34.397, lng: 150.644 }} />}
+      { /* Child components, such as markers, info windows, etc. */ }
+      <></>
     </GoogleMap>
-  );
-
+  ) : <></>
 }
 
-export default MapView;
+export default React.memo(MapView)
