@@ -55,7 +55,7 @@ const App = () => {
       axios.get(SERVER + "/maps/reverseGeocode", {
         params: {
           latlng: coords,
-          key: api_key
+          key: apiKey
         }
       })
         .then((res: any) => {
@@ -119,7 +119,7 @@ const App = () => {
     requestUserLocation();
   }, [])
 
-  const api_key: any = process.env.REACT_APP_API_KEY;
+  const apiKey: any = process.env.REACT_APP_API_KEY;
   return (
     <Container fluid className={style.AppContainer}>
       <Sidebar ref={ref}
@@ -130,7 +130,9 @@ const App = () => {
                map={map}
       />
         <div className={style.mapViewContainer}>
-
+          <MapView
+            apiKey={apiKey}
+          />
         </div>
     </Container>
   );

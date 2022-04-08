@@ -8,11 +8,12 @@ const SuggestionDropdownMenu = (props: { queryPredictions: Array<any>, showDropd
 
   return(
     <Dropdown.Menu show={showDropdown}
-                   onSelect={((eventKey, event) => {
+                   onSelect={((eventKey: any) => { //, event: any) => {
                      // event.preventDefault();
-                     console.log(eventKey)
+                     console.log(eventKey);
                    })}
                    rootCloseEvent={"click"}
+
     >
       <Dropdown.Header>Suggested Locations</Dropdown.Header>
         { queryPredictions &&
