@@ -9,18 +9,15 @@ import MapView from './components/MapView';
 const axios = require('axios');
 const SERVER = 'http://localhost:4200';
 
+const locationData = {
+  description: "",
+  latlng: {},
+  place_id: ""
+}
 
 const form = {
-  geolocation: {
-  },
-  origin: {
-    data: {
-    },
-  },
-  destination: {
-    data: {
-    },
-  }
+  origin: locationData,
+  destination: locationData
 }
 
 
@@ -34,6 +31,7 @@ const App = () => {
 
   const [map, setMap] = React.useState<google.maps.Map | null>(null);
   const [markers, setMarkers] = React.useState<google.maps.Marker[]>([]);
+  const [directions, setDirections] = React.useState<any>({});
   const [clicks, setClicks] = React.useState<google.maps.LatLng[]>([]);
   const [zoom, setZoom] = React.useState(3); // initial zoom
   const [center, setCenter] = React.useState<google.maps.LatLngLiteral>({
@@ -42,11 +40,10 @@ const App = () => {
   });
 
   const requestUserLocation = () => {
+    // Get users current position
     navigator.geolocation.getCurrentPosition((loc) => {
       const latlng = {"lat": loc.coords.latitude, "lng": loc.coords.longitude}
-      console.log(latlng);
       setGeolocation(latlng);
-      setFormData({...formData, geolocation: loc.coords});
       setCenter(latlng);
       setZoom(12);
       const coords = loc.coords.latitude.toString() + "," + loc.coords.longitude.toString();
@@ -60,9 +57,13 @@ const App = () => {
       })
         .then((res: any) => {
           console.log(res.data);
-          setFormData({...formData, origin: {data: res.data}})
+          let originData = {
+            latlng: latlng,
+            description: res.data.description,
+            place_id: res.data.place_id
+          }
+          setFormData({...formData, origin: originData})
           originRef.current.value = res.data[0].formatted_address;
-          console.log(latlng)
           addMarker(latlng);
         })
         .catch((e: any) => {
@@ -85,11 +86,12 @@ const App = () => {
 
 // Adds a marker to the map and push to the array.
   function addMarker(position: google.maps.LatLng | google.maps.LatLngLiteral) {
-    const marker = new google.maps.Marker({
-      position,
-      map,
-    });
-    setMarkers([...markers, marker])
+    // const marker = new google.maps.Marker({
+    //   position,
+    //   map,
+    // });
+    // const latlng = new google.maps.LatLng({});
+    // setMarkers([...markers, marker])
   }
 
 // Sets the map on all markers in the array.
@@ -114,6 +116,7 @@ const App = () => {
     hideMarkers();
     setMarkers([]);
   }
+
   useEffect(() => {
     // TODO: Check if this really needs to be updated -- check to see if data is already populated in origin?
     requestUserLocation();
@@ -128,10 +131,18 @@ const App = () => {
                requestUserLocation={requestUserLocation}
                geolocation={geolocation}
                map={map}
+               markers={markers}
+               setMarkers={setMarkers}
+               setDirections={setDirections}
       />
         <div className={style.mapViewContainer}>
           <MapView
             apiKey={apiKey}
+            map={map}
+            setMap={setMap}
+            markers={markers}
+            formData={formData}
+            directions={directions}
           />
         </div>
     </Container>

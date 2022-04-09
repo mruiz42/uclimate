@@ -1,5 +1,5 @@
-import React from 'react'
-import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import React, {useState} from 'react'
+import {DirectionsRenderer, DirectionsService, GoogleMap, Marker, useJsApiLoader} from '@react-google-maps/api';
 
 const containerStyle = {
   width: '400px',
@@ -7,18 +7,16 @@ const containerStyle = {
 };
 
 const center = {
-  lat: -3.745,
-  lng: -38.523
+  lat: 37,
+  lng: -121
 };
-
+// https://react-google-maps-api-docs.netlify.app/#directionsservice
 const MapView = (props: any) => {
-  const {apiKey} = props;
+  const {apiKey, map, setMap, markers, formData, directions} = props;
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: apiKey
   })
-
-  const [map, setMap] = React.useState(null)
 
   const onLoad = React.useCallback(function callback(map) {
     const bounds = new window.google.maps.LatLngBounds();
@@ -27,8 +25,9 @@ const MapView = (props: any) => {
   }, [])
 
   const onUnmount = React.useCallback(function callback(map) {
-    setMap(null)
+    setMap(null);
   }, [])
+
 
   return isLoaded ? (
     <GoogleMap
@@ -39,8 +38,9 @@ const MapView = (props: any) => {
       onUnmount={onUnmount}
     >
       { /* Child components, such as markers, info windows, etc. */ }
-      <></>
-    </GoogleMap>
+      { formData.origin.latlng != "" ? <><Marker position={formData.origin.latlng}/></> : <></>}
+      { formData.destination.latlng != "" ? <><Marker position={formData.destination.latlng}/></> : <></>}
+  </GoogleMap>
   ) : <></>
 }
 

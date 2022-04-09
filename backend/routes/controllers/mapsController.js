@@ -9,7 +9,7 @@ const api_key = process.env.GOOGLE_MAPS_API_KEY;
 exports.getDirections = (req, res, next) => {
   const origin = req.query.origin;
   const destination = req.query.destination;
-  // concert text form to placeid
+
   const client = new Client({});
   client
     .directions({
@@ -56,21 +56,20 @@ exports.queryPlaces = (req, res, next) => {
   const query = req.query.q;
   const lat = req.query.lat;
   const lng = req.query.lng;
-  let params = {
-    input: query,
-    key: api_key
-  }
 
   if (!lat || !lng) {
     handleResponse(req, res, 406);
   }
-  params.location = lat.toString() + "," + lng.toString();
-  params.radius = 500; // 500km
 
   const client = new Client({});
   client
     .placeQueryAutocomplete({
-      params: params
+      params: {
+        input: query,
+        key: api_key,
+        location: lat.toString() + "," + lng.toString(),
+        radius: 500
+      }
     })
     .then((r) => {
       // TODO: Note that the place ID, used to uniquely identify a place, is exempt from the caching restriction.
@@ -79,6 +78,28 @@ exports.queryPlaces = (req, res, next) => {
       handleResponse(req, res, 200, r.data);
     })
     .catch((e) => {
+      console.log(e);
+      handleResponse(req, res, 500);
+    })
+}
+
+exports.getCoordinates = (req, res, next) => {
+  const place_id = req.query.place_id;
+  const client = new Client({});
+  client
+    .geocode({
+      params: {
+        key: api_key,
+        place_id: place_id
+      },
+      timeout: 4000
+    })
+    .then(r => {
+
+      console.log(r);
+      handleResponse(req, res, 200, r.data)
+    })
+    .catch(e => {
       console.log(e);
       handleResponse(req, res, 500);
     })
