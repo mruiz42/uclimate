@@ -1,4 +1,4 @@
-const {getDirections, reverseGeocode, queryPlaces} = require('./controllers/mapsController');
+const {getDirections, reverseGeocode, queryPlaces, getCoordinates} = require('./controllers/mapsController');
 const express = require('express');
 const router = express.Router();
 
@@ -19,4 +19,7 @@ router.get('/queryPlaces', (req, res, next) => {
     queryPlaces(req, res, next);
 })
 
+router.get('/coords', (req, res, next) => {
+    getCoordinates(req, res, next);
+})
 module.exports = router;

@@ -7,11 +7,12 @@ import style from './style/LocationFormText.module.scss';
 const SERVER = process.env.REACT_APP_API_URL;
 
 const LocationFormText = (props: any, ref: any) => {
-  const {label, placeholder, controlId, formData, geolocation} = props;
+  const {label, placeholder, controlId, formData, geolocation, map, markers, setMarkers} = props;
   const [queryPredictions, setQueryPredictions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleChange = (event: any) => {
+    // Get a list of potential locations from query
     // TODO: Reduce the amount of calls here -- implement client side caching?
     const query = ref.current.value;
     axios.get(SERVER + "/maps/queryPlaces", {
@@ -56,20 +57,47 @@ const LocationFormText = (props: any, ref: any) => {
   }
 
   const handleDropdownClick = (event: any, id: number) => {
-    const formIdentifier = label.toLowerCase();
-    const selection = queryPredictions[id];
+    // This event gets triggered when a user selects one of the query predictions
+    // The location metadata will be set as well as a marker will be placed on the map
+    // event: js event being triggered
+    // id: dropdown id of selected prediction from dropdown
+    const formIdentifier = label.toLowerCase();   // The label of the form, ('origin' & 'destination')
+    const selection: any = queryPredictions[id];     // User's selected queryPreiction
     if (ref.current) {
-      console.log(selection)
+      console.log("Selection: ", selection)
       const newFormData = formData;
       newFormData[formIdentifier].data = selection;
       ref.current.value = newFormData[formIdentifier].data.description;
+      console.log(formData)
     }
     setShowDropdown(false);
+    axios.get(SERVER + "/maps/coords", {
+      params: {
+        address: selection.address,
+        place_id: selection.place_id
+      }
+    })
+      .then(r => {
+        const latlng = r.data.results.geometry.location;
+        // TODO: Check logic for marker here
+        // const marker = new google.maps.Marker({
+        //   position: latlng,
+        //   map: map
+        // });
+        console.log(formData);
+        setMarkers([...markers, latlng]);
+        console.log(markers)
+      })
+      .catch(e => {
+        console.log(e);
+      })
+
+
   }
 
   return (
     <Form.Group className={style.formbox} controlId={controlId} >
-      <Form.Label>{label}</Form.Label >
+      <Form.Label>{label}</Form.Label>
       <FormControl type="text"
                    ref={ref}
                    placeholder={placeholder}
