@@ -21,7 +21,6 @@ const form = {
 }
 
 
-
 const App = () => {
   const [geolocation, setGeolocation] = useState({lat: 0, lng: 0});
   const [formData, setFormData] = useState(form);
@@ -33,7 +32,7 @@ const App = () => {
   const [markers, setMarkers] = React.useState<google.maps.Marker[]>([]);
   const [directions, setDirections] = React.useState<any>({});
   const [clicks, setClicks] = React.useState<google.maps.LatLng[]>([]);
-  const [zoom, setZoom] = React.useState(3); // initial zoom
+  const [zoom, setZoom] = React.useState(3);    // initial zoom
   const [center, setCenter] = React.useState<google.maps.LatLngLiteral>({
     lat: 0,
     lng: 0,

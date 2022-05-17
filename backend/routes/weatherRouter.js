@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const {getForecast} = require('./controllers/weatherController');
+
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-    res.send('respond with a resource');
+router.get('/forecast', (req, res, next) => {
+    getForecast(req, res);
 });
 
 module.exports = router;

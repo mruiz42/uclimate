@@ -1,9 +1,11 @@
 import React, {useState} from 'react'
 import {DirectionsRenderer, DirectionsService, GoogleMap, Marker, useJsApiLoader} from '@react-google-maps/api';
+import style from './style/MapView.module.scss';
+
 
 const containerStyle = {
-  width: '400px',
-  height: '400px'
+  width: '100%',
+  height: '100%'
 };
 
 const zoom = 5;
@@ -33,17 +35,20 @@ const MapView = (props: any) => {
 
 
   return isLoaded ? (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={center}
-      zoom={zoom}
-      onLoad={onLoad}
-      onUnmount={onUnmount}
-    >
-      { /* Child components, such as markers, info windows, etc. */ }
-      { formData.origin.latlng != "" ? <><Marker position={formData.origin.latlng}/></> : <></>}
-      { formData.destination.latlng != "" ? <><Marker position={formData.destination.latlng}/></> : <></>}
-  </GoogleMap>
+    <div className={style.Map}>
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={zoom}
+        onLoad={onLoad}
+        onUnmount={onUnmount}
+      >
+        { /* Child components, such as markers, info windows, etc. */ }
+        { formData.origin.latlng != "" ? <><Marker position={formData.origin.latlng}/></> : <></>}
+        { formData.destination.latlng != "" ? <><Marker position={formData.destination.latlng}/></> : <></>}
+      </GoogleMap>
+    </div>
+
   ) : <></>
 }
 
