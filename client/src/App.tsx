@@ -1,6 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Container} from "react-bootstrap"
-import {Status, Wrapper} from "@googlemaps/react-wrapper";
 
 import style from './style/App.module.scss';
 
@@ -10,23 +9,16 @@ import MapView from './components/MapView';
 const axios = require('axios');
 const SERVER = 'http://localhost:4200';
 
-
-const form = {
-  geolocation: {
-  },
-  origin: {
-    data: {
-    },
-  },
-  destination: {
-    data: {
-    },
-  }
+const locationData = {
+  description: "",
+  latlng: {},
+  place_id: ""
 }
 
-const render = (status: Status) => {
-  return <h1>{status}</h1>;
-};
+const form = {
+  origin: locationData,
+  destination: locationData
+}
 
 
 const App = () => {
@@ -36,22 +28,21 @@ const App = () => {
   const destinationRef = useRef<any>({});
   const ref = useRef({ originRef, destinationRef });
 
-
   const [map, setMap] = React.useState<google.maps.Map | null>(null);
   const [markers, setMarkers] = React.useState<google.maps.Marker[]>([]);
+  const [directions, setDirections] = React.useState<any>({});
   const [clicks, setClicks] = React.useState<google.maps.LatLng[]>([]);
-  const [zoom, setZoom] = React.useState(3); // initial zoom
+  const [zoom, setZoom] = React.useState(3);    // initial zoom
   const [center, setCenter] = React.useState<google.maps.LatLngLiteral>({
     lat: 0,
     lng: 0,
   });
 
   const requestUserLocation = () => {
+    // Get users current position
     navigator.geolocation.getCurrentPosition((loc) => {
       const latlng = {"lat": loc.coords.latitude, "lng": loc.coords.longitude}
-      console.log(latlng);
       setGeolocation(latlng);
-      setFormData({...formData, geolocation: loc.coords});
       setCenter(latlng);
       setZoom(12);
       const coords = loc.coords.latitude.toString() + "," + loc.coords.longitude.toString();
@@ -60,14 +51,18 @@ const App = () => {
       axios.get(SERVER + "/maps/reverseGeocode", {
         params: {
           latlng: coords,
-          key: api_key
+          key: apiKey
         }
       })
         .then((res: any) => {
           console.log(res.data);
-          setFormData({...formData, origin: {data: res.data}})
+          let originData = {
+            latlng: latlng,
+            description: res.data.description,
+            place_id: res.data.place_id
+          }
+          setFormData({...formData, origin: originData})
           originRef.current.value = res.data[0].formatted_address;
-          console.log(latlng)
           addMarker(latlng);
         })
         .catch((e: any) => {
@@ -90,11 +85,12 @@ const App = () => {
 
 // Adds a marker to the map and push to the array.
   function addMarker(position: google.maps.LatLng | google.maps.LatLngLiteral) {
-    const marker = new google.maps.Marker({
-      position,
-      map,
-    });
-    setMarkers([...markers, marker])
+    // const marker = new google.maps.Marker({
+    //   position,
+    //   map,
+    // });
+    // const latlng = new google.maps.LatLng({});
+    // setMarkers([...markers, marker])
   }
 
 // Sets the map on all markers in the array.
@@ -119,29 +115,34 @@ const App = () => {
     hideMarkers();
     setMarkers([]);
   }
+
   useEffect(() => {
     // TODO: Check if this really needs to be updated -- check to see if data is already populated in origin?
     requestUserLocation();
   }, [])
 
-  const api_key: any = process.env.REACT_APP_API_KEY;
+  const apiKey: any = process.env.REACT_APP_API_KEY;
   return (
     <Container fluid className={style.AppContainer}>
-      <Sidebar ref={ref} formData={formData} setFormData={setFormData}/>
+      <Sidebar ref={ref}
+               formData={formData}
+               setFormData={setFormData}
+               requestUserLocation={requestUserLocation}
+               geolocation={geolocation}
+               map={map}
+               markers={markers}
+               setMarkers={setMarkers}
+               setDirections={setDirections}
+      />
         <div className={style.mapViewContainer}>
-          <Wrapper apiKey={api_key} render={render}>
-            <MapView
-              map={map}
-              setMap={setMap}
-              markers={markers}
-              formData={formData}
-              center={center}
-              onClick={onClick}
-              onIdle={onIdle}
-              style={{ flexGrow: "1", height: "100%" }}
-              zoom={zoom}>
-            </MapView>
-          </Wrapper>
+          <MapView
+            apiKey={apiKey}
+            map={map}
+            setMap={setMap}
+            markers={markers}
+            formData={formData}
+            directions={directions}
+          />
         </div>
     </Container>
   );

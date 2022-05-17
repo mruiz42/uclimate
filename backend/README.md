@@ -1,21 +1,15 @@
-# Backend Springboot Application
-
-# Getting Started
-
-### Reference Documentation
-
-For further reference, please consider the following sections:
-
-* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.6.3/maven-plugin/reference/html/)
-* [Create an OCI image](https://docs.spring.io/spring-boot/docs/2.6.3/maven-plugin/reference/html/#build-image)
-* [Spring Web](https://docs.spring.io/spring-boot/docs/2.6.3/reference/htmlsingle/#boot-features-developing-web-applications)
-
-### Guides
-
-The following guides illustrate how to use some features concretely:
-
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/bookmarks/)
-
+# µClimate Express Backend
+## Getting Started
+1. Install npm packages
+```
+npm install
+```
+2. Obtain a Google Maps API Key
+> TODO Enter web URL here
+3. Obtain a NOAA Weather API Key
+> TODO Enter web URL here
+4. Copy `sample.env` to `.env`
+```
+cp ./backend/sample.env ./backend/.env
+```
+5. Enter your API keys into the `.env` file. (Be sure not to push this file)
