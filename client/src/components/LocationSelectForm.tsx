@@ -10,7 +10,7 @@ const LocationSelectForm = (props: any, ref: any) => {
   const {originRef, destinationRef} = ref.current;
 
   const handleClick = (event: any) => {
-    console.log("old")
+
     const travelMode = google.maps.TravelMode.DRIVING;
     let r = {
       origin: originRef.current.value,
@@ -24,7 +24,7 @@ const LocationSelectForm = (props: any, ref: any) => {
     directionService.route(r, (result, status) => {
     })
       .then(r => {
-        console.log(r)
+        console.log(r);
         directionsRenderer.setDirections(r);
         }
       );
