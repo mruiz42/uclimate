@@ -17,13 +17,18 @@ const locationData = {
 
 const form = {
   origin: locationData,
-  destination: locationData
+  destination: locationData,
 }
 
+const weather = {
+  origin: undefined,
+  destination: undefined
+}
 
 const App = () => {
   const [geolocation, setGeolocation] = useState({lat: 0, lng: 0});
   const [formData, setFormData] = useState(form);
+  const [weatherData, setWeatherData] = useState(weather);
   const originRef = useRef<any>({});
   const destinationRef = useRef<any>({});
   const ref = useRef({ originRef, destinationRef });
@@ -133,6 +138,8 @@ const App = () => {
                markers={markers}
                setMarkers={setMarkers}
                setDirections={setDirections}
+               weatherData={weatherData}
+               setWeatherData={setWeatherData}
       />
         <div className={style.mapViewContainer}>
           <MapView
@@ -141,6 +148,7 @@ const App = () => {
             setMap={setMap}
             markers={markers}
             formData={formData}
+            weatherData={weatherData}
             directions={directions}
           />
         </div>

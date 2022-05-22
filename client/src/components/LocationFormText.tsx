@@ -53,7 +53,7 @@ const LocationFormText = (props: any, ref: any) => {
     setTimeout(() => {
       console.log("DEBUG: Blur timeout :)")
       setShowDropdown(false);
-    }, 500)
+    }, 500);
   }
 
   const handleDropdownClick = (event: any, id: number) => {

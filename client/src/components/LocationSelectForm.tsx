@@ -6,10 +6,23 @@ import axios from "axios";
 const SERVER = process.env.REACT_APP_API_URL;
 
 const LocationSelectForm = (props: any, ref: any) => {
-  const {formData, setFormData, requestUserLocation, geolocation, map, markers, setMarkers, setDirections} = props;
+  const {formData, setFormData, requestUserLocation, geolocation, map, markers, setMarkers, setDirections, weatherData, setWeatherData} = props;
   const {originRef, destinationRef} = ref.current;
 
   const handleClick = (event: any) => {
+    // Get origin weather
+    axios.get(SERVER + "/weather/forecast?lat=" +
+      formData.origin.latlng.lat + "&lng=" + formData.origin.latlng.lng)
+      .then(originData => {
+        console.log(originData.data);
+        setWeatherData({...weatherData, origin: originData.data.properties});
+        // Get destination weather
+        axios.get(SERVER + "/weather/forecast?lat=" +
+          formData.destination.latlng.lat + "&lng=" + formData.destination.latlng.lng)
+          .then(destData => {
+
+          })
+      })
 
     const travelMode = google.maps.TravelMode.DRIVING;
     let r = {
