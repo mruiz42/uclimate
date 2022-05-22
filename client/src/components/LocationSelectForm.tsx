@@ -20,27 +20,31 @@ const LocationSelectForm = (props: any, ref: any) => {
         axios.get(SERVER + "/weather/forecast?lat=" +
           formData.destination.latlng.lat + "&lng=" + formData.destination.latlng.lng)
           .then(destData => {
+            // Set weather data and get directions
+            setWeatherData({...weatherData, destination: destData.data.properties});
+            const travelMode = google.maps.TravelMode.DRIVING;
+            let r = {
+              origin: originRef.current.value,
+              destination: destinationRef.current.value,
+              travelMode: travelMode
+            };
 
+            const directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+            const directionService = new google.maps.DirectionsService();
+            directionService.route(r, (result, status) => {
+            })
+              .then(r => {
+                console.log(r);
+                console.log("MARKERS", markers)
+                map.
+                directionsRenderer.setDirections(r);
+                }
+              );
           })
       })
 
-    const travelMode = google.maps.TravelMode.DRIVING;
-    let r = {
-      origin: originRef.current.value,
-      destination: destinationRef.current.value,
-      travelMode: travelMode
-    };
 
-    const directionsRenderer = new google.maps.DirectionsRenderer();
-    directionsRenderer.setMap(map);
-    const directionService = new google.maps.DirectionsService();
-    directionService.route(r, (result, status) => {
-    })
-      .then(r => {
-        console.log(r);
-        directionsRenderer.setDirections(r);
-        }
-      );
 
     // axios.get(SERVER + "/maps/directions", {
     //     params: {

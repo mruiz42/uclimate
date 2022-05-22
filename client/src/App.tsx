@@ -68,7 +68,7 @@ const App = () => {
           }
           setFormData({...formData, origin: originData})
           originRef.current.value = res.data[0].formatted_address;
-          addMarker(latlng);
+          // addMarker(latlng);
         })
         .catch((e: any) => {
           console.log(e);

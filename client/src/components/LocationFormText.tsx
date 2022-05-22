@@ -84,9 +84,8 @@ const LocationFormText = (props: any, ref: any) => {
         //   position: latlng,
         //   map: map
         // });
-        console.log(formData);
         setMarkers([...markers, latlng]);
-        console.log(markers)
+        console.log("MARKERS", markers);
       })
       .catch(e => {
         console.log(e);
