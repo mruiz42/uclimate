@@ -23,7 +23,7 @@ const LocationSelectForm = (props: any, ref: any) => {
             // Set weather data and get directions
             setWeatherData({...weatherData, destination: destData.data.properties});
             const travelMode = google.maps.TravelMode.DRIVING;
-            let r = {
+            let route = {
               origin: originRef.current.value,
               destination: destinationRef.current.value,
               travelMode: travelMode
@@ -32,15 +32,14 @@ const LocationSelectForm = (props: any, ref: any) => {
             const directionsRenderer = new google.maps.DirectionsRenderer();
             directionsRenderer.setMap(map);
             const directionService = new google.maps.DirectionsService();
-            directionService.route(r, (result, status) => {
-            })
-              .then(r => {
-                console.log(r);
-                console.log("MARKERS", markers)
-                map.
-                directionsRenderer.setDirections(r);
-                }
-              );
+            directionService.route(route, (result, status) => {})
+              .then(res => {
+                console.log("DIRECTIONS", res);
+                // console.log("MARKERS", markers)
+                directionsRenderer.setDirections(res);
+                const waypoints = google.maps.geometry.encoding.decodePath(res.routes[0].overview_polyline);
+                console.log(waypoints)
+              });
           })
       })
 

@@ -40,7 +40,6 @@ const MapView = (props: any) => {
   const onUnmount = React.useCallback(function callback(map) {
     setMap(null);
   }, []);
-
   return isLoaded ? (
     <div className={style.Map}>
       <GoogleMap
@@ -54,7 +53,6 @@ const MapView = (props: any) => {
         { /* Child components, such as markers, info windows, etc. */ }
         { formData.origin.latlng != "" ? <><Marker position={formData.origin.latlng}/></> : <></>}
         { formData.destination.latlng != "" ? <><Marker position={formData.destination.latlng}/></> : <></>}
-        { weatherData.origin != undefined ? <><InfoWindow position={formData.origin.latlng}/></> : <></>}
       </GoogleMap>
     </div>
 

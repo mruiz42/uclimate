@@ -5,6 +5,7 @@ import style from './style/App.module.scss';
 
 import Sidebar from "./components/Sidebar";
 import MapView from './components/MapView';
+import {AxiosResponse} from "axios";
 
 const axios = require('axios');
 const SERVER = 'http://localhost:4200';
@@ -26,7 +27,7 @@ const weather = {
 }
 
 const App = () => {
-  const [geolocation, setGeolocation] = useState({lat: 0, lng: 0});
+  const [geolocation, setGeolocation] = useState({lat: 32, lng: -119});
   const [formData, setFormData] = useState(form);
   const [weatherData, setWeatherData] = useState(weather);
   const originRef = useRef<any>({});
@@ -39,8 +40,8 @@ const App = () => {
   const [clicks, setClicks] = React.useState<google.maps.LatLng[]>([]);
   const [zoom, setZoom] = React.useState(3);    // initial zoom
   const [center, setCenter] = React.useState<google.maps.LatLngLiteral>({
-    lat: 0,
-    lng: 0,
+    lat: 36,
+    lng: -119,
   });
 
   const requestUserLocation = () => {
@@ -52,14 +53,20 @@ const App = () => {
       setZoom(12);
       const coords = loc.coords.latitude.toString() + "," + loc.coords.longitude.toString();
       originRef.current.value = latlng;
-
+      // axios.get(SERVER + "/weather/forecast?lat=" +
+      //   latlng.lat + "&lng=" + latlng.lng)
+      //   .then ((res: AxiosResponse) => {
+      //     setWeatherData({...weatherData, origin: res.data.properties});
+      //
+      //   })
+      // .catch((e: any)=>console.log(e));
       axios.get(SERVER + "/maps/reverseGeocode", {
         params: {
           latlng: coords,
           key: apiKey
         }
       })
-        .then((res: any) => {
+        .then((res: AxiosResponse) => {
           console.log(res.data);
           let originData = {
             latlng: latlng,
