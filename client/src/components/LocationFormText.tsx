@@ -7,7 +7,7 @@ import style from './style/LocationFormText.module.scss';
 const SERVER = process.env.REACT_APP_API_URL;
 
 const LocationFormText = (props: any, ref: any) => {
-  const {label, placeholder, controlId, formData, geolocation, map, markers, setMarkers} = props;
+  const {label, placeholder, controlId, formData, setFormData, geolocation, map, markers, setMarkers} = props;
   const [queryPredictions, setQueryPredictions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -67,8 +67,9 @@ const LocationFormText = (props: any, ref: any) => {
       console.log("Selection: ", selection)
       const newFormData = formData;
       newFormData[formIdentifier].data = selection;
-      ref.current.value = newFormData[formIdentifier].data.description;
+      ref.current.value = newFormData[formIdentifier].data.description
       console.log(formData)
+      setFormData(newFormData);
     }
     setShowDropdown(false);
     axios.get(SERVER + "/maps/coords", {
