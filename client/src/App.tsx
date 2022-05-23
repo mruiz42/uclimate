@@ -6,6 +6,7 @@ import style from './style/App.module.scss';
 import Sidebar from "./components/Sidebar";
 import MapView from './components/MapView';
 import {AxiosResponse} from "axios";
+import WeatherPanel from "./components/WeatherPanel";
 
 const axios = require('axios');
 const SERVER = 'http://localhost:4200';
@@ -73,7 +74,7 @@ const App = () => {
             description: res.data.description,
             place_id: res.data.place_id
           }
-          setFormData({...formData, origin: originData})
+          setFormData({...formData, origin: originData});
           originRef.current.value = res.data[0].formatted_address;
           // addMarker(latlng);
         })

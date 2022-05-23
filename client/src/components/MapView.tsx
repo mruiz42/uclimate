@@ -25,6 +25,7 @@ const center = {
 const markerClick = (e: any) => {
   console.log(e);
 }
+
 // https://react-google-maps-api-docs.netlify.app/#directionsservice
 const MapView = (props: any) => {
   const {apiKey, map, setMap, markers, formData, directions, weatherData} = props;

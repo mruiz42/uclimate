@@ -12,6 +12,12 @@ const LocationSelectForm = (props: any, ref: any) => {
 
   const handleClick = (event: any) => {
     // Get origin weather
+    for (let i=0; i<markers.length; i++) {
+      markers[i].setMap(null);
+    }
+    map.clear();
+    setMarkers([]);
+    // Get origin weather
     axios.get(SERVER + "/weather/forecast?lat=" +
       formData.origin.latlng.lat + "&lng=" + formData.origin.latlng.lng)
       .then(originData => {
@@ -39,42 +45,69 @@ const LocationSelectForm = (props: any, ref: any) => {
                 // console.log("MARKERS", markers)
                 directionsRenderer.setDirections(res);
                 const waypoints= google.maps.geometry.encoding.decodePath(res.routes[0].overview_polyline);
-                let points: any = [];
+                let overview_polyline_latLngs: any = [];
                 for (let i=0; i<waypoints.length; i++) {
                   const js = waypoints[i].toJSON();
-                  console.log("JS", js)
-                  points.push([js.lng, js.lat])
+                  console.log("JS", js);
+                  overview_polyline_latLngs.push([js.lng, js.lat]);
                 }
-                const line = turf.lineString(points);
-                console.log(line)
-                const totalDistance = turf.distance(points[0], points[points.length-1]);
+                const line = turf.lineString(overview_polyline_latLngs);
+                console.log(line);
+                const totalDistance = turf.distance(overview_polyline_latLngs[0], overview_polyline_latLngs[overview_polyline_latLngs.length-1]);
                 const keyPoints: any = [];
                 let cur = 25;
                 console.log("TOTALDISTANCE", totalDistance)
                 while (cur<totalDistance) {
                   let along = turf.along(line, cur);
                   console.log("ALONG", along);
-                  const lat = along.geometry.coordinates[1];
-                  const lng = along.geometry.coordinates[0];
-
+                  const latAlong = along.geometry.coordinates[1];
+                  const lngAlong = along.geometry.coordinates[0];
+                  const alongLatLng = {lat: latAlong, lng: lngAlong};
                   let mark = new google.maps.Marker({});
-                  mark.setPosition({lat: lat, lng: lng});
+                  mark.setPosition(alongLatLng);
                   mark.setMap(map);
+                  const matrixService = new google.maps.DistanceMatrixService();
+                  const matrixRequest = {
+                    "origins": [
+                      {
+                        "lat": overview_polyline_latLngs[0].lat,
+                        "lng": overview_polyline_latLngs[0].lng
+                    }],
+                    "destinations":
+                      // https://stackoverflow.com/questions/68446993/how-to-filter-every-element-except-first-in-an-array-js
+                      overview_polyline_latLngs.filter((subArray: any, index: any) => subArray.length > 0 || index === 0),
+                    "travelMode": google.maps.TravelMode.DRIVING,
+                    "unitSystem": google.maps.UnitSystem.IMPERIAL,
+                    "avoidHighways": false,
+                    "avoidTolls": false
+                  }
+
+                  matrixService.getDistanceMatrix(matrixRequest)
+                    .then((matrixResponse) => {
+                      matrixResponse
+                    })
+
+
                   axios.get(SERVER + "/weather/forecast?lat=" +
-                    lat + "&lng=" + lng)
+                    latAlong + "&lng=" + lngAlong)
                     .then(destData => {
                       console.log("WEATHER", destData)
-                      const weather = destData.data.properties.periods[0].detailedForecast;
-                      const info = new google.maps.InfoWindow({position: {lat: lat, lng: lng},
-                        content: weather});
+                      const weatherPeriods = destData.data.properties.periods;
+                      const info = new google.maps.InfoWindow({position: alongLatLng,
+                        content: weatherPeriods[0].detailedForecast});
                       const infoWindowOpenOptions = {map: map, shouldFocus: true, anchor: mark};
                       info.open(infoWindowOpenOptions);
+                      mark.setLabel(weatherPeriods[0].temperature.toString()); // + "°F");
+                    })
+                    .catch(e => {
+                      console.log("WEATHER FAIL", e);
+                      mark.setMap(null);
                     })
                     // const mark = {lat: lat, lng: lng};
                   // keyPoints.unshift(mark);
                   // console.log("NEWMARK", mark)
-                  setTimeout(() => { console.log('wai ting 400ms before next query') }, 400)
-                  cur += 50
+                  setTimeout(() => { console.log('waiting 1000ms before next query') }, 1000);
+                  cur += 50;
                 }
                 setMarkers(keyPoints);
                 // for (let i = 0; i < keyPoints.length; i++) {
