@@ -78,14 +78,14 @@ const LocationFormText = (props: any, ref: any) => {
       }
     })
       .then(r => {
-        const latlng = r.data.results.geometry.location;
+        // const latlng = r.data.results.geometry.location;
         // TODO: Check logic for marker here
         // const marker = new google.maps.Marker({
         //   position: latlng,
         //   map: map
         // });
-        setMarkers([...markers, latlng]);
-        console.log("MARKERS", markers);
+        // setMarkers([...markers, latlng]);
+        // console.log("MARKERS", markers);
       })
       .catch(e => {
         console.log(e);

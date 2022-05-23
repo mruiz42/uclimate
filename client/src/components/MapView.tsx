@@ -53,6 +53,9 @@ const MapView = (props: any) => {
         { /* Child components, such as markers, info windows, etc. */ }
         { formData.origin.latlng != "" ? <><Marker position={formData.origin.latlng}/></> : <></>}
         { formData.destination.latlng != "" ? <><Marker position={formData.destination.latlng}/></> : <></>}
+        {markers.map((pos: any, index: any) => {
+          return(<Marker position={pos} visible={true} title={pos.lat.toString()+","+pos.lng.toString()} key={index}></Marker>)
+        })}
       </GoogleMap>
     </div>
 

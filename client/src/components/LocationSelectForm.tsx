@@ -3,6 +3,7 @@ import React, {forwardRef, useState} from "react";
 import LocationFormText from "./LocationFormText";
 import style from './style/LocationSelectForm.module.scss';
 import axios from "axios";
+import * as turf from '@turf/turf';
 const SERVER = process.env.REACT_APP_API_URL;
 
 const LocationSelectForm = (props: any, ref: any) => {
@@ -37,8 +38,38 @@ const LocationSelectForm = (props: any, ref: any) => {
                 console.log("DIRECTIONS", res);
                 // console.log("MARKERS", markers)
                 directionsRenderer.setDirections(res);
-                const waypoints = google.maps.geometry.encoding.decodePath(res.routes[0].overview_polyline);
-                console.log(waypoints)
+                const waypoints= google.maps.geometry.encoding.decodePath(res.routes[0].overview_polyline);
+                let points: any = [];
+                for (let i=0; i<waypoints.length; i++) {
+                  const js = waypoints[i].toJSON();
+                  console.log("JS", js)
+                  points.push([js.lng, js.lat])
+                }
+                const line = turf.lineString(points);
+                console.log(line)
+                const totalDistance = turf.distance(points[0], points[points.length-1]);
+                const keyPoints: any = [];
+                let cur = 25;
+                console.log("TOTALDISTANCE", totalDistance)
+                while (cur<totalDistance) {
+                  let along = turf.along(line, cur);
+                  console.log("ALONG", along);
+                  const lat = along.geometry.coordinates[1];
+                  const lng = along.geometry.coordinates[0];
+
+                  // let mark = new google.maps.Marker({ label: "hi", title: x.toString()});
+                  // mark.setPosition({lat: x, lng: y});
+                  // mark.setMap(map);
+                  const mark = {lat: lat, lng: lng};
+                  keyPoints.unshift(mark);
+                  console.log("NEWMARK", mark)
+                  cur += 50
+                }
+                setMarkers(keyPoints);
+                // for (let i = 0; i < keyPoints.length; i++) {
+                //   keyPoints[i].setMap(map);
+                //   console.log("KEYPOINTS", keyPoints[i])
+                // }
               });
           })
       })
