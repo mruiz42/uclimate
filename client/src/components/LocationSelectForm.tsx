@@ -57,12 +57,24 @@ const LocationSelectForm = (props: any, ref: any) => {
                   const lat = along.geometry.coordinates[1];
                   const lng = along.geometry.coordinates[0];
 
-                  // let mark = new google.maps.Marker({ label: "hi", title: x.toString()});
-                  // mark.setPosition({lat: x, lng: y});
-                  // mark.setMap(map);
-                  const mark = {lat: lat, lng: lng};
-                  keyPoints.unshift(mark);
-                  console.log("NEWMARK", mark)
+                  let mark = new google.maps.Marker({});
+                  mark.setPosition({lat: lat, lng: lng});
+                  mark.setMap(map);
+                  axios.get(SERVER + "/weather/forecast?lat=" +
+                    lat + "&lng=" + lng)
+                    .then(destData => {
+                      console.log("WEATHER", destData)
+                      const weather = destData.data.properties.periods[0].detailedForecast;
+                      console.log
+                      const info = new google.maps.InfoWindow({position: {lat: lat, lng: lng},
+                        content: weather});
+                      const infoWindowOpenOptions = {map: map, shouldFocus: true, anchor: mark};
+                      info.open(infoWindowOpenOptions);
+                    })
+                    // const mark = {lat: lat, lng: lng};
+                  // keyPoints.unshift(mark);
+                  // console.log("NEWMARK", mark)
+                  setTimeout(() => { console.log('waiting 400ms before next query') }, 400)
                   cur += 50
                 }
                 setMarkers(keyPoints);

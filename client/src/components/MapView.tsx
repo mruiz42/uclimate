@@ -22,7 +22,9 @@ const center = {
   lat: 36,
   lng: -119
 };
-
+const markerClick = (e: any) => {
+  console.log(e);
+}
 // https://react-google-maps-api-docs.netlify.app/#directionsservice
 const MapView = (props: any) => {
   const {apiKey, map, setMap, markers, formData, directions, weatherData} = props;
@@ -53,9 +55,10 @@ const MapView = (props: any) => {
         { /* Child components, such as markers, info windows, etc. */ }
         { formData.origin.latlng != "" ? <><Marker position={formData.origin.latlng}/></> : <></>}
         { formData.destination.latlng != "" ? <><Marker position={formData.destination.latlng}/></> : <></>}
-        {markers.map((pos: any, index: any) => {
-          return(<Marker position={pos} visible={true} title={pos.lat.toString()+","+pos.lng.toString()} key={index}></Marker>)
-        })}
+        {/*{markers.map((pos: any, index: any) => {*/}
+        {/*  return(<Marker position={pos} visible={true} title={pos.lat.toString()+","+pos.lng.toString()}*/}
+        {/*                 onClick={markerClick} key={index}></Marker>)*/}
+        {/*})}*/}
       </GoogleMap>
     </div>
 
