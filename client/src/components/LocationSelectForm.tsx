@@ -65,7 +65,6 @@ const LocationSelectForm = (props: any, ref: any) => {
                     .then(destData => {
                       console.log("WEATHER", destData)
                       const weather = destData.data.properties.periods[0].detailedForecast;
-                      console.log
                       const info = new google.maps.InfoWindow({position: {lat: lat, lng: lng},
                         content: weather});
                       const infoWindowOpenOptions = {map: map, shouldFocus: true, anchor: mark};
@@ -74,7 +73,7 @@ const LocationSelectForm = (props: any, ref: any) => {
                     // const mark = {lat: lat, lng: lng};
                   // keyPoints.unshift(mark);
                   // console.log("NEWMARK", mark)
-                  setTimeout(() => { console.log('waiting 400ms before next query') }, 400)
+                  setTimeout(() => { console.log('wai ting 400ms before next query') }, 400)
                   cur += 50
                 }
                 setMarkers(keyPoints);
