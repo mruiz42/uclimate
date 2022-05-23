@@ -8,7 +8,8 @@ const { DateTime, Interval, Duration } = require("luxon");
 const SERVER = process.env.REACT_APP_API_URL;
 
 const LocationSelectForm = (props: any, ref: any) => {
-  const {formData, setFormData, requestUserLocation, geolocation, map, markers, setMarkers, setDirections, weatherData, setWeatherData} = props;
+  const {formData, setFormData, requestUserLocation, geolocation, map, markers, setMarkers, setDirections, weatherData,
+    setWeatherData} = props;
   const {originRef, destinationRef} = ref.current;
 
   const handleClick = (event: any) => {
@@ -80,8 +81,8 @@ const LocationSelectForm = (props: any, ref: any) => {
                 const matrixRequest = {
                   "origins": [
                     {
-                      "lat": formData.origin.latlng.lat,
-                      "lng": formData.origin.latlng.lng
+                      "lat": subPointLatLngs[0].lat,
+                      "lng": subPointLatLngs[0].lng
                     }],
                   "destinations":
                   // https://stackoverflow.com/questions/68446993/how-to-filter-every-element-except-first-in-an-array-js

@@ -11,15 +11,17 @@ import WeatherPanel from "./components/WeatherPanel";
 const axios = require('axios');
 const SERVER = 'http://localhost:4200';
 
-const locationData = {
-  description: "",
-  latlng: {},
-  place_id: ""
-}
-
 const form = {
-  origin: locationData,
-  destination: locationData,
+  origin: {
+    description: "",
+    latlng: {},
+    place_id: ""
+  },
+  destination: {
+    description: "",
+    latlng: {},
+    place_id: ""
+  }
 }
 
 const weather = {
