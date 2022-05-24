@@ -4,7 +4,7 @@ A way to check for safety hazards and severe weather conditions you may encounte
 
 # About
 
-WIP
+![Sample Image](./images/SampleImage.png)
 
 # Features
 
