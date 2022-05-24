@@ -1,21 +1,24 @@
 # μClimate
-
-A way to check for safety hazards and severe weather conditions you may encounter along a given route (in real time).
+This project is the submission from Group 12 for CMPE 133 SEC 01 - Software Engineer II for the Spring 22 semester at San Jose State University.
 
 # About
 
-WIP
+Our website provides real-time data on the current weather conditions along with route directions.
+It provides more accurate and updated weather information that correlates to the estimated arrival time so that a driver will be aware of what they will experience during their travel.  
+
+The web Application utalizes the Google Maps API to provide drivin routes for a user in tandum with the National Oceanic and Atmoshpheric Administration API (NOAAAPI) which provides weather information, specifically - sky conditions, temptreture, expected chanage in temperature, and
+wind statistics. 
 
 # Features
-
-WIP
-
-# Requirements
-
-WIP
+* highlight driving route from user inputted origin to destination
+* detailed weather summary of multiple points along route
 
 # Installation
+
 ## Getting Started
+See below for information regarding API access.
+* Google Maps API acess and information: (https://mapsplatform.google.com/)
+* National Oceanic and Atmoshpheric Administration (NOAA) API acess and infromation: (https://www.weather.gov/documentation/services-web-api)
 
 See below for detailed documentation for the individual frontend and backend application.
 * [Client](https://github.com/mruiz42/uclimate/blob/main/client/README.md)
