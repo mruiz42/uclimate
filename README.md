@@ -1,5 +1,7 @@
 # μClimate
 
+[![Tests](https://github.com/mruiz42/uclimate/actions/workflows/test.yml/badge.svg)](https://github.com/mruiz42/uclimate/actions/workflows/test.yml)
+
 **Weather along your route.** Pick a start and a destination; μClimate plans the drive and shows
 the forecast at points along the way, timed to when you'll actually be there.
 
