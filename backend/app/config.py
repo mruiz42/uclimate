@@ -25,7 +25,8 @@ class Settings(BaseSettings):
     max_stops: int = Field(default=40, ge=2, le=100)
 
     http_timeout_s: float = Field(default=10, gt=0)
-    user_agent: str = "uclimate/1.0"
+    # Public OSRM/Photon instances ask clients to identify themselves with a contact point.
+    user_agent: str = "uclimate/1.0 (+https://github.com/mruiz42/uclimate)"
 
     cors_origins: str = ""
 
