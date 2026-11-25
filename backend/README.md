@@ -30,7 +30,7 @@ Interactive docs are at <http://localhost:4200/docs>, and the OpenAPI schema is 
 
 | Method and path               | Description |
 | ----------------------------- | ----------- |
-| `GET /api/trip`               | Route plus weather stops. Query: `origin=lat,lng`, `destination=lat,lng`, `units=metric\|imperial`, optional `depart_at` (ISO 8601, defaults to now) |
+| `GET /api/trip`               | Route, weather stops, hazard alerts and a dense weather track. Query: `origin=lat,lng`, `destination=lat,lng`, `units=metric\|imperial`, optional `depart_at` (ISO 8601, defaults to now), `interval_min` (15–360, driving minutes between listed stops, default 60) |
 | `GET /api/geocode/search`     | Place autocomplete. Query: `q`, optional `lat`/`lng` (bias), `limit`, `lang` |
 | `GET /api/geocode/reverse`    | Nearest place to `lat`/`lng`, with optional `lang` |
 | `GET /api/weather`            | Hourly forecast for one point. Query: `lat`, `lng`, `units`, `hours` |
@@ -55,7 +55,7 @@ app/
   config.py      settings (the only place config is read)
   models.py      API request/response models
   providers/     one module per external service, behind Protocols in base.py
-  services/      pure logic: route sampling, forecast-hour matching, trip assembly
+  services/      pure logic: route sampling, stop picking, hazard detection, forecast-hour matching, trip assembly
   routers/       HTTP endpoints
 tests/           pytest suite
 ```

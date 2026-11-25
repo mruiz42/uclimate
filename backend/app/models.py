@@ -6,6 +6,10 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 Units = Literal["metric", "imperial"]
+Hazard = Literal[
+    "thunderstorm", "snow", "freezing-rain", "heavy-rain", "fog", "high-wind", "temp-swing"
+]
+Severity = Literal[0, 1, 2]  # none, caution, warning
 
 
 class LatLng(BaseModel):
@@ -39,6 +43,7 @@ class Weather(BaseModel):
     wind_speed: float
     wind_speed_unit: str
     wind_direction: float | None = Field(default=None, description="Degrees, meteorological")
+    wind_gusts: float | None = Field(default=None, description="Same unit as wind_speed")
     precipitation_probability: float | None = Field(default=None, description="Percent")
 
 
@@ -49,11 +54,37 @@ class Stop(LatLng):
     weather: Weather | None = Field(description="null when the ETA is beyond the forecast range")
 
 
+class TrackPoint(LatLng):
+    """A densely spaced point checked for hazards; drives the colored route line."""
+
+    distance_m: float
+    eta: datetime
+    icon: str | None = Field(description="Weather icon key; null beyond the forecast range")
+    severity: Severity
+
+
+class Alert(BaseModel):
+    """A stretch of route with hazardous weather, found from the dense track."""
+
+    hazard: Hazard
+    severity: Literal[1, 2] = Field(description="1 caution, 2 warning")
+    description: str
+    start_distance_m: float
+    end_distance_m: float
+    start_eta: datetime
+    end_eta: datetime
+    lat: float = Field(description="Location of the worst point in the stretch")
+    lng: float
+
+
 class Trip(BaseModel):
     route: Route
     stops: list[Stop]
+    track: list[TrackPoint]
+    alerts: list[Alert]
     units: Units
     depart_at: datetime
+    interval_min: int = Field(description="Driving time between listed stops")
 
 
 class PointForecast(LatLng):

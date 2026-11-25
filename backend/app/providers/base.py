@@ -22,6 +22,7 @@ class HourlyForecast:
     weather_code: list[int | None]
     wind_speed: list[float | None]
     wind_direction: list[float | None]
+    wind_gusts: list[float | None]
     precipitation_probability: list[float | None]
     temperature_unit: str
     wind_speed_unit: str
@@ -42,8 +43,10 @@ class GeocodingProvider(Protocol):
 
 
 class WeatherProvider(Protocol):
-    async def hourly(self, points: Sequence[LatLng], units: Units) -> list[HourlyForecast]:
-        """One forecast per point, in the same order."""
+    async def hourly(
+        self, points: Sequence[LatLng], units: Units, forecast_days: int = 16
+    ) -> list[HourlyForecast]:
+        """One forecast per point, in the same order, covering `forecast_days` from today."""
         ...
 
 

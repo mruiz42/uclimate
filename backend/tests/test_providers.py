@@ -144,6 +144,7 @@ def meteo_location(temp: float) -> dict[str, object]:
             "weather_code": [0, 61],
             "wind_speed_10m": [5.0, 6.0],
             "wind_direction_10m": [90, 180],
+            "wind_gusts_10m": [12.0, 40.0],
             "precipitation_probability": [0, 80],
         },
     }
@@ -162,13 +163,19 @@ async def test_open_meteo_batches_points(client: httpx.AsyncClient) -> None:
     assert params["latitude"] == "37.33,34.05"
     assert params["temperature_unit"] == "fahrenheit"
     assert params["timeformat"] == "unixtime"
+    assert "wind_gusts_10m" in params["hourly"]
+    assert params["forecast_days"] == "16"
+    assert forecasts[0].wind_gusts == [12.0, 40.0]
 
 
 @respx.mock
 async def test_open_meteo_single_point_object(client: httpx.AsyncClient) -> None:
-    respx.get("https://meteo.test/v1/forecast").respond(json=meteo_location(10))
-    (forecast,) = await OpenMeteoWeather(client, "https://meteo.test").hourly([A], "metric")
+    mock = respx.get("https://meteo.test/v1/forecast").respond(json=meteo_location(10))
+    (forecast,) = await OpenMeteoWeather(client, "https://meteo.test").hourly(
+        [A], "metric", forecast_days=2
+    )
     assert forecast.weather_code == [0, 61]
+    assert mock.calls.last.request.url.params["forecast_days"] == "2"
 
 
 @respx.mock

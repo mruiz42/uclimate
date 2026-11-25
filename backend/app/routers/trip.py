@@ -29,6 +29,9 @@ async def get_trip(
     depart_at: Annotated[
         datetime | None, Query(description="ISO 8601; defaults to now. Naive times are UTC.")
     ] = None,
+    interval_min: Annotated[
+        int, Query(ge=15, le=360, description="Driving minutes between listed stops")
+    ] = 60,
 ) -> Trip:
     when = depart_at or datetime.now(UTC)
     if when.tzinfo is None:
@@ -39,6 +42,8 @@ async def get_trip(
         parse_latlng(destination, "destination"),
         units,
         when,
-        interval_km=settings.sample_interval_km,
+        interval_min=interval_min,
+        track_interval_km=settings.track_interval_km,
+        max_track_points=settings.max_track_points,
         max_stops=settings.max_stops,
     )

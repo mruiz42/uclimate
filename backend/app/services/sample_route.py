@@ -89,3 +89,38 @@ def sample_route(
             )
         )
     return points
+
+
+def pick_stops(samples: Sequence[SamplePoint], interval_s: float, max_stops: int) -> list[int]:
+    """Indices of the samples to list as stops: the origin, one per `interval_s` of driving
+    (the sample nearest each multiple), and the destination.
+
+    The interval widens if it would give more than `max_stops`. A pick within a quarter
+    interval of the destination is dropped, as in `sample_route`.
+    """
+    if interval_s <= 0:
+        raise ValueError("interval_s must be positive")
+    if max_stops < 2:
+        raise ValueError("max_stops must be at least 2")
+    n = len(samples)
+    if n <= 2:
+        return list(range(n))
+
+    total_s = samples[-1].eta_s
+    if total_s / interval_s + 1 > max_stops:
+        interval_s = total_s / (max_stops - 1)
+    targets = [k * interval_s for k in range(1, math.ceil(total_s / interval_s))]
+    if targets and total_s - targets[-1] < interval_s / 4:
+        targets.pop()
+
+    etas = [s.eta_s for s in samples]
+    picked = [0]
+    for target in targets:
+        i = bisect_left(etas, target)
+        if i > 0 and (i == n or target - etas[i - 1] <= etas[i] - target):
+            i -= 1
+        i = min(max(i, 1), n - 2)
+        if i > picked[-1]:
+            picked.append(i)
+    picked.append(n - 1)
+    return picked

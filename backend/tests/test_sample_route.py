@@ -1,6 +1,6 @@
 import pytest
 
-from app.services.sample_route import haversine_m, sample_route
+from app.services.sample_route import SamplePoint, haversine_m, pick_stops, sample_route
 
 # A straight east-west line along the equator: 1 degree of longitude ≈ 111.195 km.
 DEG_M = haversine_m((0, 0), (1, 0))
@@ -84,3 +84,39 @@ def test_zero_length_route() -> None:
 def test_invalid_arguments(interval: float, max_stops: int) -> None:
     with pytest.raises(ValueError):
         sample_route(LINE, 1, interval, max_stops)
+
+
+def track(etas_min: list[float]) -> list[SamplePoint]:
+    return [SamplePoint(lat=0, lng=0, distance_m=m * 1000, eta_s=m * 60) for m in etas_min]
+
+
+def test_pick_stops_nearest_each_interval() -> None:
+    samples = track([0, 25, 55, 70, 118, 150, 180])
+    # Targets 60 and 120 min -> samples at 55 and 118; then the destination.
+    assert pick_stops(samples, 3600, max_stops=40) == [0, 2, 4, 6]
+
+
+def test_pick_stops_drops_pick_crowding_the_destination() -> None:
+    samples = track([0, 30, 60, 110, 130])
+    # Target 120 is within 15 min (a quarter interval) of the 130 min arrival.
+    assert pick_stops(samples, 3600, max_stops=40) == [0, 2, 4]
+
+
+def test_pick_stops_widens_interval_to_respect_max() -> None:
+    samples = track([float(m) for m in range(0, 601, 10)])  # 10 h
+    picked = pick_stops(samples, 1800, max_stops=4)  # 30 min would give 21 stops
+    assert len(picked) == 4
+    assert picked[0] == 0 and picked[-1] == len(samples) - 1
+
+
+def test_pick_stops_short_routes() -> None:
+    assert pick_stops([], 3600, 40) == []
+    assert pick_stops(track([0]), 3600, 40) == [0]
+    assert pick_stops(track([0, 5, 10]), 3600, 40) == [0, 2]
+
+
+def test_pick_stops_validates() -> None:
+    with pytest.raises(ValueError):
+        pick_stops(track([0, 1]), 0, 40)
+    with pytest.raises(ValueError):
+        pick_stops(track([0, 1]), 60, 1)

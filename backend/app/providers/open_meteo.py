@@ -19,6 +19,7 @@ HOURLY_VARS = (
     "weather_code",
     "wind_speed_10m",
     "wind_direction_10m",
+    "wind_gusts_10m",
     "precipitation_probability",
 )
 # Open-Meteo's own labels, normalised for display (it reports mph as "mp/h").
@@ -35,7 +36,9 @@ class OpenMeteoWeather:
         self._base = base_url.rstrip("/")
         self._cache = cache
 
-    async def hourly(self, points: Sequence[LatLng], units: Units) -> list[HourlyForecast]:
+    async def hourly(
+        self, points: Sequence[LatLng], units: Units, forecast_days: int = 16
+    ) -> list[HourlyForecast]:
         forecasts: list[HourlyForecast] = []
         for start in range(0, len(points), BATCH_SIZE):
             batch = points[start : start + BATCH_SIZE]
@@ -46,7 +49,7 @@ class OpenMeteoWeather:
                 "hourly": ",".join(HOURLY_VARS),
                 "timeformat": "unixtime",
                 "timezone": "GMT",
-                "forecast_days": 16,
+                "forecast_days": min(max(forecast_days, 1), 16),
                 **UNIT_PARAMS[units],
             }
             body = await get_json(
@@ -75,6 +78,7 @@ def parse_location(loc: Any) -> HourlyForecast:
             weather_code=hourly["weather_code"],
             wind_speed=hourly["wind_speed_10m"],
             wind_direction=hourly["wind_direction_10m"],
+            wind_gusts=hourly.get("wind_gusts_10m") or [None] * len(hourly["time"]),
             precipitation_probability=hourly.get("precipitation_probability")
             or [None] * len(hourly["time"]),
             temperature_unit=units.get("temperature_2m", ""),

@@ -43,24 +43,31 @@ class FakeGeocoding:
 
 
 class FakeWeather:
+    """Light rain everywhere, except a thunderstorm cell around lng 1.5 (mid-route)."""
+
     def __init__(self) -> None:
         self.points: list[LatLng] = []
+        self.forecast_days: int | None = None
 
-    async def hourly(self, points: Sequence[LatLng], units: Units) -> list[HourlyForecast]:
+    async def hourly(
+        self, points: Sequence[LatLng], units: Units, forecast_days: int = 16
+    ) -> list[HourlyForecast]:
         self.points = list(points)
+        self.forecast_days = forecast_days
         n = 6  # forecast covers 6 hours from departure
         return [
             HourlyForecast(
                 times=[T0 + h * 3600 for h in range(n)],
                 temperature=[float(h) for h in range(n)],
-                weather_code=[61] * n,
+                weather_code=[95 if 1.4 <= p.lng <= 1.6 else 61] * n,
                 wind_speed=[10.0] * n,
                 wind_direction=[270.0] * n,
+                wind_gusts=[20.0] * n,
                 precipitation_probability=[50.0] * n,
                 temperature_unit="°C" if units == "metric" else "°F",
                 wind_speed_unit="km/h",
             )
-            for _ in points
+            for p in points
         ]
 
 
@@ -72,7 +79,7 @@ def make_client(
         geocoding=FakeGeocoding(),
         weather=weather or FakeWeather(),
     )
-    settings = Settings(sample_interval_km=100, _env_file=None)
+    settings = Settings(_env_file=None)
     return TestClient(create_app(settings, providers))
 
 
@@ -97,13 +104,43 @@ def test_trip(client: TestClient) -> None:
     assert body["units"] == "imperial"
     assert body["route"]["geometry"]["coordinates"][0] == [0.0, 0.0]
     stops = body["stops"]
-    assert len(stops) == 5  # 0, 100, 200, 300 km and the destination (~333 km)
+    assert body["interval_min"] == 60
+    assert len(stops) == 4  # start, after 1 h and 2 h of driving, and the destination (3 h)
+    assert [round(s["eta_s"] / 3600, 1) for s in stops] == [0, 1, 2, 3]
     assert stops[0]["weather"]["temperature"] == 0
+    assert stops[0]["weather"]["wind_gusts"] == 20
     # Destination ETA is 3h after departure -> the 3rd forecast hour.
     assert stops[-1]["eta"].startswith("2026-01-01T15:00")
     assert stops[-1]["weather"]["temperature"] == 3
     assert stops[-1]["weather"]["description"] == "Light rain"
     assert stops[-1]["weather"]["temperature_unit"] == "°F"
+
+
+def test_trip_alerts_hazards_between_sparse_stops() -> None:
+    weather = FakeWeather()
+    with make_client(weather=weather) as c:
+        r = c.get(
+            "/api/trip",
+            params={
+                "origin": "0,0",
+                "destination": "0,3",
+                "depart_at": DEPART.isoformat(),
+                "interval_min": 180,
+            },
+        )
+    assert r.status_code == 200
+    body = r.json()
+    # A 3 h interval lists only the two ends, neither of which is in the storm...
+    assert len(body["stops"]) == 2
+    assert all(s["weather"]["icon"] == "rain" for s in body["stops"])
+    # ...but the dense track still catches it mid-route.
+    assert len(body["track"]) > 30
+    assert any(t["icon"] == "thunderstorm" and t["severity"] == 2 for t in body["track"])
+    (alert,) = body["alerts"]
+    assert alert["hazard"] == "thunderstorm"
+    assert alert["severity"] == 2
+    assert 150_000 < alert["start_distance_m"] <= alert["end_distance_m"] < 180_000
+    assert weather.forecast_days is not None and 1 <= weather.forecast_days <= 16
 
 
 def test_trip_beyond_forecast_has_null_weather() -> None:
@@ -123,6 +160,7 @@ def test_trip_beyond_forecast_has_null_weather() -> None:
         {"origin": "0,0"},
         {"origin": "95,0", "destination": "0,3"},
         {"origin": "0,0", "destination": "0,3", "units": "kelvin"},
+        {"origin": "0,0", "destination": "0,3", "interval_min": "5"},
     ],
 )
 def test_trip_validation(client: TestClient, params: dict[str, str]) -> None:

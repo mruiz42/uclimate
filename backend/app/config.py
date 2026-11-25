@@ -18,7 +18,10 @@ class Settings(BaseSettings):
     geocoding_provider: Literal["photon"] = "photon"
     weather_provider: Literal["open-meteo"] = "open-meteo"
 
-    sample_interval_km: float = Field(default=80, gt=0)
+    # The route is checked for hazards every `track_interval_km` (at most `max_track_points`
+    # points); the stops listed for the user are a subset chosen by driving time.
+    track_interval_km: float = Field(default=10, gt=0)
+    max_track_points: int = Field(default=200, ge=2, le=500)
     max_stops: int = Field(default=40, ge=2, le=100)
 
     http_timeout_s: float = Field(default=10, gt=0)
