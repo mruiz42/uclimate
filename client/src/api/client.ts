@@ -9,6 +9,8 @@ export type Place = Schemas['Place'];
 export type Trip = Schemas['Trip'];
 export type Stop = Schemas['Stop'];
 export type Weather = Schemas['Weather'];
+export type Alert = Schemas['Alert'];
+export type TrackPoint = Schemas['TrackPoint'];
 export type LatLng = { lat: number; lng: number };
 
 /** Turn an API error body (FastAPI's `{detail}`) into something to show the user. */

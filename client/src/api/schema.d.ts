@@ -93,6 +93,46 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * Alert
+         * @description A stretch of route with hazardous weather, found from the dense track.
+         */
+        Alert: {
+            /**
+             * Hazard
+             * @enum {string}
+             */
+            hazard: "thunderstorm" | "snow" | "freezing-rain" | "heavy-rain" | "fog" | "high-wind" | "temp-swing";
+            /**
+             * Severity
+             * @description 1 caution, 2 warning
+             * @enum {integer}
+             */
+            severity: 1 | 2;
+            /** Description */
+            description: string;
+            /** Start Distance M */
+            start_distance_m: number;
+            /** End Distance M */
+            end_distance_m: number;
+            /**
+             * Start Eta
+             * Format: date-time
+             */
+            start_eta: string;
+            /**
+             * End Eta
+             * Format: date-time
+             */
+            end_eta: string;
+            /**
+             * Lat
+             * @description Location of the worst point in the stretch
+             */
+            lat: number;
+            /** Lng */
+            lng: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -172,11 +212,42 @@ export interface components {
             /** @description null when the ETA is beyond the forecast range */
             weather: components["schemas"]["Weather"] | null;
         };
+        /**
+         * TrackPoint
+         * @description A densely spaced point checked for hazards; drives the colored route line.
+         */
+        TrackPoint: {
+            /** Lat */
+            lat: number;
+            /** Lng */
+            lng: number;
+            /** Distance M */
+            distance_m: number;
+            /**
+             * Eta
+             * Format: date-time
+             */
+            eta: string;
+            /**
+             * Icon
+             * @description Weather icon key; null beyond the forecast range
+             */
+            icon: string | null;
+            /**
+             * Severity
+             * @enum {integer}
+             */
+            severity: 0 | 1 | 2;
+        };
         /** Trip */
         Trip: {
             route: components["schemas"]["Route"];
             /** Stops */
             stops: components["schemas"]["Stop"][];
+            /** Track */
+            track: components["schemas"]["TrackPoint"][];
+            /** Alerts */
+            alerts: components["schemas"]["Alert"][];
             /**
              * Units
              * @enum {string}
@@ -187,6 +258,11 @@ export interface components {
              * Format: date-time
              */
             depart_at: string;
+            /**
+             * Interval Min
+             * @description Driving time between listed stops
+             */
+            interval_min: number;
         };
         /** ValidationError */
         ValidationError: {
@@ -232,6 +308,11 @@ export interface components {
              */
             wind_direction?: number | null;
             /**
+             * Wind Gusts
+             * @description Same unit as wind_speed
+             */
+            wind_gusts?: number | null;
+            /**
              * Precipitation Probability
              * @description Percent
              */
@@ -256,6 +337,8 @@ export interface operations {
                 units?: "metric" | "imperial";
                 /** @description ISO 8601; defaults to now. Naive times are UTC. */
                 depart_at?: string | null;
+                /** @description Driving minutes between listed stops */
+                interval_min?: number;
             };
             header?: never;
             path?: never;

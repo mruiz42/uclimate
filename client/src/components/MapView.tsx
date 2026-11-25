@@ -9,8 +9,23 @@ import Map, {
   type LineLayer,
   type MapRef,
 } from 'react-map-gl/maplibre';
+import type { ExpressionSpecification } from 'maplibre-gl';
 import type { Place, Trip } from '../api/client';
-import { compass, formatDistance, formatTemp, formatTime, weatherIcon } from '../format';
+import {
+  CONDITIONS,
+  compass,
+  condition,
+  formatDistance,
+  formatDistanceRange,
+  formatTemp,
+  formatTime,
+  formatTimeRange,
+  hazardIcon,
+  weatherIcon,
+  type Condition,
+} from '../format';
+import { routeGradient } from '../routeColors';
+import { isSelected, type Selection } from '../selection';
 import type { Units } from '../units';
 import style from './style/MapView.module.scss';
 
@@ -30,21 +45,22 @@ const routeCasing: LineLayer = {
   layout: { 'line-join': 'round', 'line-cap': 'round' },
   paint: { 'line-color': '#0b5d75', 'line-width': 8 },
 };
-const routeLine: LineLayer = {
+const routeLine = (gradient: ExpressionSpecification): LineLayer => ({
   id: 'route-line',
   type: 'line',
   source: 'route',
   layout: { 'line-join': 'round', 'line-cap': 'round' },
-  paint: { 'line-color': '#0dcaf0', 'line-width': 5 },
-};
+  paint: { 'line-gradient': gradient, 'line-width': 5 },
+});
+
 
 type Props = {
   origin: Place | null;
   destination: Place | null;
   trip: Trip | null;
   units: Units;
-  selected: number | null;
-  onSelect: (index: number | null) => void;
+  selected: Selection;
+  onSelect: (selection: Selection) => void;
 };
 
 const MapView = ({ origin, destination, trip, units, selected, onSelect }: Props) => {
@@ -79,18 +95,26 @@ const MapView = ({ origin, destination, trip, units, selected, onSelect }: Props
         [Math.min(...lngs), Math.min(...lats)],
         [Math.max(...lngs), Math.max(...lats)],
       ],
-      { padding: 60, duration: 800, maxZoom: 12 },
+      // Extra room at the bottom keeps the route clear of the legend.
+      { padding: { top: 60, right: 60, bottom: 90, left: 60 }, duration: 800, maxZoom: 12 },
     );
   }, [trip, origin, destination]);
 
-  // Pan to a stop picked from the side panel.
-  useEffect(() => {
-    const stop = selected != null ? trip?.stops[selected] : undefined;
-    if (stop) mapRef.current?.easeTo({ center: [stop.lng, stop.lat], duration: 500 });
-  }, [selected, trip]);
+  const gradient = useMemo(() => trip && routeGradient(trip.track), [trip]);
+  const legend = useMemo(
+    () => (trip ? [...new Set(trip.track.map((t) => condition(t.icon)))] : []) as Condition[],
+    [trip],
+  );
 
-  const selectedStop = selected != null ? trip?.stops[selected] : undefined;
+  const selectedStop = selected?.kind === 'stop' ? trip?.stops[selected.index] : undefined;
+  const selectedAlert = selected?.kind === 'alert' ? trip?.alerts[selected.index] : undefined;
+  const focus = selectedStop ?? selectedAlert;
   const lastIndex = trip ? trip.stops.length - 1 : -1;
+
+  // Pan to a stop or alert picked from the side panel.
+  useEffect(() => {
+    if (focus) mapRef.current?.easeTo({ center: [focus.lng, focus.lat], duration: 500 });
+  }, [focus]);
 
   return (
     <div className={style.map}>
@@ -104,10 +128,10 @@ const MapView = ({ origin, destination, trip, units, selected, onSelect }: Props
         <NavigationControl position="top-right" showCompass={false} />
         <AttributionControl position="bottom-right" compact customAttribution={ATTRIBUTION} />
 
-        {route && (
-          <Source id="route" type="geojson" data={route}>
+        {route && gradient && (
+          <Source id="route" type="geojson" data={route} lineMetrics>
             <Layer {...routeCasing} />
-            <Layer {...routeLine} />
+            <Layer {...routeLine(gradient)} />
           </Source>
         )}
 
@@ -131,7 +155,7 @@ const MapView = ({ origin, destination, trip, units, selected, onSelect }: Props
             anchor="center"
             onClick={(e) => {
               e.originalEvent.stopPropagation();
-              onSelect(i);
+              onSelect({ kind: 'stop', index: i });
             }}
           >
             <span
@@ -139,7 +163,7 @@ const MapView = ({ origin, destination, trip, units, selected, onSelect }: Props
                 style.stop,
                 i === 0 && style.origin,
                 i === lastIndex && style.destination,
-                i === selected && style.selected,
+                isSelected(selected, 'stop', i) && style.selected,
               ]
                 .filter(Boolean)
                 .join(' ')}
@@ -151,6 +175,50 @@ const MapView = ({ origin, destination, trip, units, selected, onSelect }: Props
             </span>
           </Marker>
         ))}
+
+        {trip?.alerts.map((alert, i) => (
+          <Marker
+            key={`alert-${i}`}
+            longitude={alert.lng}
+            latitude={alert.lat}
+            anchor="center"
+            onClick={(e) => {
+              e.originalEvent.stopPropagation();
+              onSelect({ kind: 'alert', index: i });
+            }}
+          >
+            <span
+              className={[
+                style.alertPin,
+                alert.severity === 2 ? style.warning : style.caution,
+                isSelected(selected, 'alert', i) && style.selected,
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              title={alert.description}
+            >
+              {hazardIcon(alert.hazard)}
+            </span>
+          </Marker>
+        ))}
+
+        {selectedAlert && (
+          <Popup
+            longitude={selectedAlert.lng}
+            latitude={selectedAlert.lat}
+            anchor="bottom"
+            offset={18}
+            closeOnClick={false}
+            onClose={() => onSelect(null)}
+            className={style.popup}
+          >
+            <strong>
+              {hazardIcon(selectedAlert.hazard)} {selectedAlert.description}
+            </strong>
+            <div>{formatDistanceRange(selectedAlert.start_distance_m, selectedAlert.end_distance_m, units)}</div>
+            <div>{formatTimeRange(selectedAlert.start_eta, selectedAlert.end_eta)}</div>
+          </Popup>
+        )}
 
         {selectedStop && (
           <Popup
@@ -186,6 +254,16 @@ const MapView = ({ origin, destination, trip, units, selected, onSelect }: Props
           </Popup>
         )}
       </Map>
+      {legend.length > 0 && (
+        <ul className={style.legend} aria-label="Route colors">
+          {legend.map((c) => (
+            <li key={c}>
+              <span className={style.swatch} style={{ background: CONDITIONS[c].color }} aria-hidden />
+              {CONDITIONS[c].label}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

@@ -70,3 +70,46 @@
   font-weight: 600;
   white-space: nowrap;
 }
+
+.banner {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.clear {
+  background: rgba(25, 135, 84, 0.15);
+  color: #75b798;
+}
+
+.caution {
+  --alert-color: #ffc107;
+}
+
+.warning {
+  --alert-color: #ff6b6b;
+}
+
+.banner.caution,
+.banner.warning {
+  background: color-mix(in srgb, var(--alert-color) 15%, transparent);
+  color: var(--alert-color);
+}
+
+.alert {
+  border-left-color: var(--alert-color);
+  background: color-mix(in srgb, var(--alert-color) 8%, transparent);
+
+  .when {
+    color: var(--alert-color);
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--alert-color) 14%, transparent);
+  }
+
+  &.selected {
+    background: color-mix(in srgb, var(--alert-color) 20%, transparent);
+  }
+}

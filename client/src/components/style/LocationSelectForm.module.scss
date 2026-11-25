@@ -22,12 +22,41 @@
   }
 }
 
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin-top: 0.75rem;
+}
+
+.option {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+
+  select {
+    width: auto;
+  }
+}
+
+.optionLabel {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--bs-secondary-color);
+}
+
+.when {
+  width: auto;
+  color-scheme: dark;
+}
+
 .actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 0.75rem;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
 }
 
 .error {

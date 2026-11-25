@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { compass, formatDistance, formatDuration } from './format';
+import { routeGradient } from './routeColors';
+import { compass, condition, formatDistance, formatDistanceRange, formatDuration, toLocalInput } from './format';
 import { defaultUnits } from './units';
 
 describe('defaultUnits', () => {
@@ -34,5 +35,49 @@ describe('format', () => {
     expect(compass(359)).toBe('N');
     expect(compass(315)).toBe('NW');
     expect(compass(-90)).toBe('W');
+  });
+});
+
+describe('route colours', () => {
+  const point = (distance_m: number, icon: string | null) => ({
+    lat: 0,
+    lng: 0,
+    distance_m,
+    eta: '2026-01-01T12:00:00Z',
+    icon,
+    severity: 0 as const,
+  });
+
+  it('maps weather icons to conditions', () => {
+    expect(condition('clear')).toBe('dry');
+    expect(condition('showers')).toBe('rain');
+    expect(condition('thunderstorm')).toBe('storm');
+    expect(condition(null)).toBe('unknown');
+  });
+
+  it('switches colour halfway between points with different conditions', () => {
+    const gradient = routeGradient([point(0, 'clear'), point(10, 'cloudy'), point(20, 'rain'), point(40, 'rain')]);
+    expect(gradient).toEqual(['step', ['line-progress'], '#0dcaf0', 0.375, '#1d4ed8']);
+  });
+
+  it('is a single band when conditions never change', () => {
+    expect(routeGradient([point(0, 'snow'), point(10, 'snow')])).toEqual([
+      'step',
+      ['line-progress'],
+      '#e0f2fe',
+      1,
+      '#e0f2fe',
+    ]);
+  });
+});
+
+describe('format helpers', () => {
+  it('formats distance ranges', () => {
+    expect(formatDistanceRange(250_000, 290_000, 'metric')).toBe('250–290 km');
+    expect(formatDistanceRange(250_000, 250_000, 'metric')).toBe('250 km');
+  });
+
+  it('formats a local datetime-input value', () => {
+    expect(toLocalInput(new Date(2026, 0, 5, 9, 3))).toBe('2026-01-05T09:03');
   });
 });

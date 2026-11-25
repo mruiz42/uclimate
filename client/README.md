@@ -44,14 +44,17 @@ Both variables are optional. Set them in `.env.local` (see [`sample.env`](sample
 
 ```text
 src/
-  App.tsx                  state and data flow (places, trip, units, selection)
+  App.tsx                  state and data flow (places, trip options, trip, selection)
   api/                     generated schema + typed client
   components/
     LocationFormText.tsx   search-as-you-type place picker
-    LocationSelectForm.tsx origin/destination form, units toggle, Go
-    MapView.tsx            MapLibre map: route, stop markers, popup, attribution
-    WeatherPanel.tsx       trip summary and per-stop forecast list
+    LocationSelectForm.tsx origin/destination form, departure, interval, units, Go
+    MapView.tsx            MapLibre map: weather-colored route, stop and alert markers, legend
+    WeatherPanel.tsx       trip summary, alert banner, stops and alerts in driving order
     Sidebar.tsx            layout wrapper
-  format.ts                distance/time/wind formatting, weather icons
+  format.ts                distance/time/wind formatting, weather and hazard icons, route palette
+  routeColors.ts           route line gradient built from the weather track
+  prefs.ts                 saved preferences (localStorage), stop-interval options
+  selection.ts             selected stop or alert
   units.ts                 locale-based default units + saved preference
 ```

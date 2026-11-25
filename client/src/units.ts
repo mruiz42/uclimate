@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useStoredPref } from './prefs';
 
 export type Units = 'metric' | 'imperial';
 
@@ -15,25 +15,8 @@ export function defaultUnits(locale: string = navigator.language): Units {
   }
 }
 
-function readStored(): Units | null {
-  try {
-    const value = localStorage.getItem(STORAGE_KEY);
-    return value === 'metric' || value === 'imperial' ? value : null;
-  } catch {
-    return null;
-  }
-}
-
 /** Units preference: the saved choice, else the browser locale's convention. */
-export function useUnits(): [Units, (units: Units) => void] {
-  const [units, setUnitsState] = useState<Units>(() => readStored() ?? defaultUnits());
-  const setUnits = useCallback((next: Units) => {
-    setUnitsState(next);
-    try {
-      localStorage.setItem(STORAGE_KEY, next);
-    } catch {
-      // Storage unavailable (private mode etc.): the choice just won't persist.
-    }
-  }, []);
-  return [units, setUnits];
-}
+export const useUnits = () =>
+  useStoredPref<Units>(STORAGE_KEY, () => defaultUnits(), (raw) =>
+    raw === 'metric' || raw === 'imperial' ? raw : null,
+  );

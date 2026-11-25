@@ -3,12 +3,16 @@
 **Weather along your route.** Pick a start and a destination; μClimate plans the drive and shows
 the forecast at points along the way, timed to when you'll actually be there.
 
-![μClimate showing a drive from San Jose to Los Angeles with forecast temperatures along the route](./images/SampleImage.png)
+![μClimate showing a drive from San Francisco to Reno: stops every hour of driving, a rain band colored on the route, and a temperature-drop alert over the pass](./images/SampleImage.png)
 
 ## Features
 
 - Driving route between any two places, worldwide
-- Weather stops every ~80 km (50 mi) along the route, each with its own arrival time
+- Leave now or pick a departure time up to a week ahead
+- Weather stops every 30 min to 3 h of driving (your choice), each with its own arrival time
+- Hazard alerts (storms, snow, freezing rain, heavy rain, fog, strong gusts, sharp temperature
+  swings), checked about every 10 km so nothing hides between stops
+- Route line colored by the conditions you'll drive through
 - The forecast hour that matches your ETA at each stop: conditions, temperature, wind, and chance of precipitation
 - Search-as-you-type for places, plus "use my location"
 - Metric or imperial units, defaulting to your browser's locale
@@ -56,8 +60,9 @@ Nothing needs configuring to run locally. To override defaults, copy `backend/sa
 | `OSRM_URL`           | `https://router.project-osrm.org` | Routing server |
 | `PHOTON_URL`         | `https://photon.komoot.io`        | Geocoding server |
 | `OPEN_METEO_URL`     | `https://api.open-meteo.com`      | Weather API |
-| `SAMPLE_INTERVAL_KM` | `80`                              | Distance between weather stops |
-| `MAX_STOPS`          | `40`                              | Upper bound on stops per trip |
+| `TRACK_INTERVAL_KM`  | `10`                              | Spacing of the points checked for hazards |
+| `MAX_TRACK_POINTS`   | `200`                             | Upper bound on those points (spacing widens on long routes) |
+| `MAX_STOPS`          | `40`                              | Upper bound on stops listed per trip |
 | `CORS_ORIGINS`       | *(empty)*                         | Comma-separated origins allowed to call the API cross-origin |
 | `VITE_API_URL`       | same origin                       | (client) API location |
 | `VITE_MAP_STYLE`     | OpenFreeMap "liberty"             | (client) MapLibre style URL |
@@ -77,8 +82,10 @@ flowchart LR
 A trip request goes through these steps:
 
 1. The backend asks OSRM for the route, including the driving time of every segment.
-2. It walks the route and places a stop every `SAMPLE_INTERVAL_KM`. Each stop's ETA is the summed segment times up to that point.
-3. It fetches the hourly forecast for all stops in **one** batched Open-Meteo request, and picks the hour closest to each stop's ETA.
+2. It walks the route and places a track point every `TRACK_INTERVAL_KM`. Each point's ETA is the summed segment times up to that point.
+3. It fetches the hourly forecast for all track points in **one** batched Open-Meteo request (only as many days as the drive needs), and picks the hour closest to each point's ETA.
+4. Every track point is checked for hazards. Consecutive hazardous points are merged into alerts, and the points drive the route's colors.
+5. The stops listed for the user are the track points nearest each `interval_min` of driving. The interval only affects that list, never which hazards are found.
 
 Each external service sits behind a small interface in
 [`backend/app/providers/`](backend/app/providers/), so it can be swapped through config.
