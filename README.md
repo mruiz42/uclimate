@@ -1,35 +1,122 @@
 # μClimate
-This project is the submission from Group 12 for CMPE 133 SEC 01 - Software Engineer II for the Spring 22 semester at San Jose State University.
 
-# About
+**Weather along your route.** Pick a start and a destination; μClimate plans the drive and shows
+the forecast at points along the way, timed to when you'll actually be there.
 
-![Sample Image](./images/SampleImage.png)
-Our website provides real-time data on the current weather conditions along with route directions.
-It provides more accurate and updated weather information that correlates to the estimated arrival time so that a driver will be aware of what they will experience during their travel.  
+![μClimate showing a drive from San Jose to Los Angeles with forecast temperatures along the route](./images/SampleImage.png)
 
-The web Application utalizes the Google Maps API to provide drivin routes for a user in tandum with the National Oceanic and Atmoshpheric Administration API (NOAAAPI) which provides weather information, specifically - sky conditions, temptreture, expected chanage in temperature, and
-wind statistics. 
+## Features
 
-# Features
-* highlight driving route from user inputted origin to destination
-* detailed weather summary of multiple points along route
+- Driving route between any two places, worldwide
+- Weather stops every ~80 km (50 mi) along the route, each with its own arrival time
+- The forecast hour that matches your ETA at each stop: conditions, temperature, wind, and chance of precipitation
+- Search-as-you-type for places, plus "use my location"
+- Metric or imperial units, defaulting to your browser's locale
+- No API keys or accounts needed: everything runs on free, open data
 
-# Installation
+## Tech stack
 
-## Getting Started
-See below for information regarding API access.
-* Google Maps API acess and information: (https://mapsplatform.google.com/)
-* National Oceanic and Atmoshpheric Administration (NOAA) API acess and infromation: (https://www.weather.gov/documentation/services-web-api)
+| Layer    | Technology |
+| -------- | ---------- |
+| Frontend | React 18, TypeScript, Vite, React-Bootstrap, MapLibre GL (via `react-map-gl`) |
+| Backend  | Python 3.12, FastAPI, httpx, pydantic |
+| Map      | [OpenFreeMap](https://openfreemap.org/) vector tiles ([OpenStreetMap](https://www.openstreetmap.org/) data) |
+| Routing  | [OSRM](https://project-osrm.org/) |
+| Search   | [Photon](https://photon.komoot.io/) (OpenStreetMap geocoder) |
+| Weather  | [Open-Meteo](https://open-meteo.com/) |
+| Tests    | pytest + respx, Vitest + Testing Library |
 
-See below for detailed documentation for the individual frontend and backend application.
-* [Client](https://github.com/mruiz42/uclimate/blob/main/client/README.md)
-* [Backend](https://github.com/mruiz42/uclimate/blob/main/backend/README.md)
+## Quick start
 
-# License
-Copyright 2022
+Prerequisites: **Node.js 20+**, **Python 3.12+**, and [**uv**](https://docs.astral.sh/uv/).
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+```bash
+npm run setup   # installs root, client, and backend dependencies
+npm run dev     # API on :4200, web app on :5173
+```
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+Open <http://localhost:5173>. Interactive API docs are at <http://localhost:4200/docs>.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Other scripts (run from the repo root):
+
+| Command           | What it does |
+| ----------------- | ------------ |
+| `npm test`        | Backend and frontend test suites (no network needed) |
+| `npm run check`   | Lint, format check, and type-check both halves |
+| `npm run build`   | Production build of the web app (`client/dist`) |
+| `npm run gen:api` | Regenerate the client's API types from the running backend |
+
+## Configuration
+
+Nothing needs configuring to run locally. To override defaults, copy `backend/sample.env` to
+`backend/.env` (and optionally `client/sample.env` to `client/.env.local`).
+
+| Variable             | Default                           | Purpose |
+| -------------------- | --------------------------------- | ------- |
+| `OSRM_URL`           | `https://router.project-osrm.org` | Routing server |
+| `PHOTON_URL`         | `https://photon.komoot.io`        | Geocoding server |
+| `OPEN_METEO_URL`     | `https://api.open-meteo.com`      | Weather API |
+| `SAMPLE_INTERVAL_KM` | `80`                              | Distance between weather stops |
+| `MAX_STOPS`          | `40`                              | Upper bound on stops per trip |
+| `CORS_ORIGINS`       | *(empty)*                         | Comma-separated origins allowed to call the API cross-origin |
+| `VITE_API_URL`       | same origin                       | (client) API location |
+| `VITE_MAP_STYLE`     | OpenFreeMap "liberty"             | (client) MapLibre style URL |
+
+## How it works
+
+```mermaid
+flowchart LR
+  UI["React app<br/>(MapLibre map)"] -- "/api/trip" --> API["FastAPI"]
+  UI -- "/api/geocode/*" --> API
+  API --> R["Routing provider<br/>(OSRM)"]
+  API --> G["Geocoding provider<br/>(Photon)"]
+  API --> W["Weather provider<br/>(Open-Meteo)"]
+  UI -. "map tiles" .-> T["OpenFreeMap"]
+```
+
+A trip request goes through these steps:
+
+1. The backend asks OSRM for the route, including the driving time of every segment.
+2. It walks the route and places a stop every `SAMPLE_INTERVAL_KM`. Each stop's ETA is the summed segment times up to that point.
+3. It fetches the hourly forecast for all stops in **one** batched Open-Meteo request, and picks the hour closest to each stop's ETA.
+
+Each external service sits behind a small interface in
+[`backend/app/providers/`](backend/app/providers/), so it can be swapped through config.
+
+### Adding another API
+
+1. Add a module under `backend/app/providers/`. If you might want alternatives later, define a `Protocol` for it in `base.py`.
+2. Expose it through a router in `backend/app/routers/`, with pydantic response models in `models.py`.
+3. Put any keys or URLs in `Settings` (`backend/app/config.py`). Secrets stay on the server.
+4. Run `npm run gen:api` so the client picks up the new, typed endpoint.
+
+### Heavier use
+
+The default OSRM and Photon servers are public demo instances meant for light use. For anything
+busier, self-host them (both ship Docker images) and point `OSRM_URL` and `PHOTON_URL` at your
+instances. Open-Meteo's free API is for non-commercial use; commercial use needs one of their
+[API plans](https://open-meteo.com/en/pricing).
+
+## Project layout
+
+```text
+backend/   FastAPI service (see backend/README.md)
+client/    React + Vite web app (see client/README.md)
+images/    README assets
+```
+
+## Credits
+
+Created by **Michael Ruiz**.
+
+### Data and attribution
+
+- Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), available under the ODbL
+- Map tiles by [OpenFreeMap](https://openfreemap.org/), using the [OpenMapTiles](https://openmaptiles.org/) schema
+- Routing by [OSRM](https://project-osrm.org/)
+- Place search by [Photon](https://photon.komoot.io/) from komoot
+- [Weather data by Open-Meteo.com](https://open-meteo.com/), licensed under CC BY 4.0
+
+## License
+
+[MIT](LICENSE) © 2022 Michael Ruiz

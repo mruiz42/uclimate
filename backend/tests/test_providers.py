@@ -110,7 +110,12 @@ async def test_photon_search(client: httpx.AsyncClient) -> None:
     assert [p.label for p in places] == ["Eiffel Tower, Paris, Ile-de-France, France"]
     assert (places[0].id, places[0].lat, places[0].lng) == ("W5013364", 48.8584, 2.2945)
     params = mock.calls.last.request.url.params
-    assert (params["q"], params["lat"], params["lon"]) == ("eiffel", "48.9", "2.4")
+    assert (params["q"], params["lat"], params["lon"], params["zoom"]) == (
+        "eiffel",
+        "48.9",
+        "2.4",
+        "8",
+    )
 
 
 @respx.mock

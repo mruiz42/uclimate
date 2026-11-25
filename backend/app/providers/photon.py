@@ -12,6 +12,7 @@ SERVICE = "photon"
 GEOCODE_TTL_S = 24 * 60 * 60
 # Languages the public Photon instance can label results in; others get local names.
 SUPPORTED_LANGS = {"en", "de", "fr"}
+BIAS_ZOOM = 8
 
 
 def lang_param(lang: str | None) -> dict[str, str]:
@@ -30,8 +31,10 @@ class PhotonGeocoding:
     ) -> list[Place]:
         params: dict[str, str | int | float] = {"q": query, "limit": limit, **lang_param(lang)}
         if bias is not None:
-            # Rounded so nearby users share cache entries.
-            params |= {"lat": round(bias.lat, 1), "lon": round(bias.lng, 1)}
+            # Rounded so nearby users share cache entries. zoom=8 widens the bias to a
+            # region: Photon's default (16) lets nearby streets named "Los Angeles" outrank
+            # the city itself.
+            params |= {"lat": round(bias.lat, 1), "lon": round(bias.lng, 1), "zoom": BIAS_ZOOM}
         body = await get_json(
             self._client,
             SERVICE,
