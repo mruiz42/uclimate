@@ -1,3 +1,72 @@
 .panel {
-  width: 25%;
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.summary {
+  font-size: 0.9rem;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.5rem;
+}
+
+.stops {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+}
+
+.stop {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  color: inherit;
+  padding: 0.5rem 0.5rem 0.5rem 0.6rem;
+  border-radius: 0.25rem;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.selected {
+  background: rgba(13, 202, 240, 0.12);
+  border-left-color: var(--bs-info);
+}
+
+.icon {
+  font-size: 1.5rem;
+  width: 2rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.when {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.details {
+  font-size: 0.8rem;
+  color: var(--bs-secondary-color);
+}
+
+.temp {
+  font-size: 1.15rem;
+  font-weight: 600;
+  white-space: nowrap;
 }

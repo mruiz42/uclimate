@@ -1,169 +1,133 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Container} from "react-bootstrap"
-
-import style from './style/App.module.scss';
-
-import Sidebar from "./components/Sidebar";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { api, errorMessage, type LatLng, type Place, type Trip } from './api/client';
 import MapView from './components/MapView';
-import {AxiosResponse} from "axios";
-import WeatherPanel from "./components/WeatherPanel";
-
-const axios = require('axios');
-const SERVER = 'http://localhost:4200';
-
-const form = {
-  origin: {
-    description: "",
-    latlng: {},
-    place_id: ""
-  },
-  destination: {
-    description: "",
-    latlng: {},
-    place_id: ""
-  }
-}
-
-const weather = {
-  origin: undefined,
-  destination: undefined
-}
+import Sidebar from './components/Sidebar';
+import style from './style/App.module.scss';
+import { useUnits, type Units } from './units';
 
 const App = () => {
-  const [geolocation, setGeolocation] = useState({lat: 32, lng: -119});
-  const [formData, setFormData] = useState(form);
-  const [weatherData, setWeatherData] = useState(weather);
-  const originRef = useRef<any>({});
-  const destinationRef = useRef<any>({});
-  const ref = useRef({ originRef, destinationRef });
+  const [origin, setOrigin] = useState<Place | null>(null);
+  const [destination, setDestination] = useState<Place | null>(null);
+  const [userLocation, setUserLocation] = useState<LatLng | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [trip, setTrip] = useState<Trip | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [units, setUnits] = useUnits();
+  const pending = useRef<AbortController | null>(null);
 
-  const [map, setMap] = React.useState<google.maps.Map | null>(null);
-  const [markers, setMarkers] = React.useState<google.maps.Marker[]>([]);
-  const [directions, setDirections] = React.useState<any>({});
-  const [clicks, setClicks] = React.useState<google.maps.LatLng[]>([]);
-  const [zoom, setZoom] = React.useState(3);    // initial zoom
-  const [center, setCenter] = React.useState<google.maps.LatLngLiteral>({
-    lat: 36,
-    lng: -119,
-  });
-
-  const requestUserLocation = () => {
-    // Get users current position
-    navigator.geolocation.getCurrentPosition((loc) => {
-      const latlng = {"lat": loc.coords.latitude, "lng": loc.coords.longitude}
-      setGeolocation(latlng);
-      setCenter(latlng);
-      setZoom(12);
-      const coords = loc.coords.latitude.toString() + "," + loc.coords.longitude.toString();
-      originRef.current.value = latlng;
-      // axios.get(SERVER + "/weather/forecast?lat=" +
-      //   latlng.lat + "&lng=" + latlng.lng)
-      //   .then ((res: AxiosResponse) => {
-      //     setWeatherData({...weatherData, origin: res.data.properties});
-      //
-      //   })
-      // .catch((e: any)=>console.log(e));
-      axios.get(SERVER + "/maps/reverseGeocode", {
+  const planTrip = useCallback(async (from: Place, to: Place, u: Units) => {
+    pending.current?.abort();
+    const controller = new AbortController();
+    pending.current = controller;
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: apiError } = await api.GET('/api/trip', {
         params: {
-          latlng: coords,
-          key: apiKey
-        }
-      })
-        .then((res: AxiosResponse) => {
-          console.log(res.data);
-          let originData = {
-            latlng: latlng,
-            description: res.data.description,
-            place_id: res.data.place_id
-          }
-          setFormData({...formData, origin: originData});
-          originRef.current.value = res.data[0].formatted_address;
-          // addMarker(latlng);
-        })
-        .catch((e: any) => {
-          console.log(e);
-        })
-    });
-  }
-
-  const onClick = (e: google.maps.MapMouseEvent) => {
-    // avoid directly mutating state
-    setClicks([...clicks, e.latLng!]);
-  };
-
-  const onIdle = (m: google.maps.Map) => {
-    console.log("onIdle");
-    setZoom(m.getZoom()!);
-    setCenter(m.getCenter()!.toJSON());
-
-  };
-
-// Adds a marker to the map and push to the array.
-  function addMarker(position: google.maps.LatLng | google.maps.LatLngLiteral) {
-    // const marker = new google.maps.Marker({
-    //   position,
-    //   map,
-    // });
-    // const latlng = new google.maps.LatLng({});
-    // setMarkers([...markers, marker])
-  }
-
-// Sets the map on all markers in the array.
-  function setMapOnAll(map: google.maps.Map | null) {
-    for (let i = 0; i < markers.length; i++) {
-      markers[i].setMap(map);
+          query: { origin: `${from.lat},${from.lng}`, destination: `${to.lat},${to.lng}`, units: u },
+        },
+        signal: controller.signal,
+      });
+      if (controller.signal.aborted) return;
+      if (data) {
+        setTrip(data);
+        setSelected(null);
+      } else {
+        setError(errorMessage(apiError, 'Could not plan this trip.'));
+      }
+    } catch {
+      if (!controller.signal.aborted) setError('Could not reach the μClimate server.');
+    } finally {
+      if (pending.current === controller) setLoading(false);
     }
-  }
+  }, []);
 
-// Removes the markers from the map, but keeps them in the array.
-  function hideMarkers(): void {
-    setMapOnAll(null);
-  }
-
-// Shows any markers currently in the array.
-  function showMarkers(): void {
-    setMapOnAll(map);
-  }
-
-// Deletes all markers in the array by removing references to them.
-  function deleteMarkers(): void {
-    hideMarkers();
-    setMarkers([]);
-  }
-
-  useEffect(() => {
-    // TODO: Check if this really needs to be updated -- check to see if data is already populated in origin?
-    requestUserLocation();
-  }, [])
-
-  const apiKey: any = process.env.REACT_APP_API_KEY;
-  return (
-    <Container fluid className={style.AppContainer}>
-      <Sidebar ref={ref}
-               formData={formData}
-               setFormData={setFormData}
-               requestUserLocation={requestUserLocation}
-               geolocation={geolocation}
-               map={map}
-               markers={markers}
-               setMarkers={setMarkers}
-               setDirections={setDirections}
-               weatherData={weatherData}
-               setWeatherData={setWeatherData}
-      />
-        <div className={style.mapViewContainer}>
-          <MapView
-            apiKey={apiKey}
-            map={map}
-            setMap={setMap}
-            markers={markers}
-            formData={formData}
-            weatherData={weatherData}
-            directions={directions}
-          />
-        </div>
-    </Container>
+  // A shown trip no longer matches once either end changes.
+  const resetTrip = useCallback(() => {
+    pending.current?.abort();
+    setTrip(null);
+    setSelected(null);
+  }, []);
+  const changeOrigin = useCallback(
+    (place: Place | null) => {
+      setOrigin(place);
+      resetTrip();
+    },
+    [resetTrip],
   );
-}
+  const changeDestination = useCallback(
+    (place: Place | null) => {
+      setDestination(place);
+      resetTrip();
+    },
+    [resetTrip],
+  );
+
+  const changeUnits = (u: Units) => {
+    setUnits(u);
+    // Forecast values come back in the requested units, so refresh a trip already shown.
+    if (trip && origin && destination) void planTrip(origin, destination, u);
+  };
+
+  const locateUser = useCallback(() => {
+    if (!('geolocation' in navigator)) {
+      setError('Location is not available in this browser.');
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        const here = { lat: coords.latitude, lng: coords.longitude };
+        setUserLocation(here);
+        const { data } = await api
+          .GET('/api/geocode/reverse', { params: { query: { ...here, lang: navigator.language } } })
+          .catch(() => ({ data: undefined }));
+        changeOrigin(data ?? { id: 'my-location', label: 'My location', ...here });
+        setLocating(false);
+      },
+      () => {
+        setLocating(false);
+        setError('Could not get your location. Search for a starting point instead.');
+      },
+      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 5 * 60_000 },
+    );
+  }, [changeOrigin]);
+
+  useEffect(() => () => pending.current?.abort(), []);
+
+  return (
+    <div className={style.app}>
+      <Sidebar
+        origin={origin}
+        destination={destination}
+        onOriginChange={changeOrigin}
+        onDestinationChange={changeDestination}
+        onUseMyLocation={locateUser}
+        locating={locating}
+        bias={userLocation ?? origin}
+        units={units}
+        onUnitsChange={changeUnits}
+        onSubmit={() => origin && destination && planTrip(origin, destination, units)}
+        loading={loading}
+        error={error}
+        trip={trip}
+        selected={selected}
+        onSelectStop={setSelected}
+      />
+      <main className={style.mapArea}>
+        <MapView
+          origin={origin}
+          destination={destination}
+          trip={trip}
+          units={units}
+          selected={selected}
+          onSelect={setSelected}
+        />
+      </main>
+    </div>
+  );
+};
 
 export default App;

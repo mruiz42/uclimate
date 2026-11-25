@@ -1,57 +1,57 @@
-.AppContainer {
-  background-color: #282c34;
+.app {
   display: flex;
-  flex-direction: row;
-  //align-items: center;
-  //justify-content: center;
-  color: white;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
+  background-color: #1f2229;
+  color: #f1f3f5;
 }
 
 .sidebar {
-  min-height: 100px;
-  min-width: 100px;
-}
-
-.mapViewContainer {
-  margin: 12px 0 12px 12px;
   display: flex;
-  height: 97%;
-  width: 100%;
-  overflow: hidden;
-}
-.mapView {
-  overflow: hidden;
-  display: flex;
-  min-height: 100px;
-  min-width: 100px;
-  height: 100%;
-  width: 100%;
+  flex-direction: column;
+  width: 380px;
+  flex-shrink: 0;
+  padding: 1.25rem;
+  overflow-y: auto;
+  background-color: #282c34;
 }
 
-//html,
-//body,
-//#root {
-//  min-height: 100vh;
-//  height: 100%;
-//  width: 100%;
-//  margin: 0;
-//}
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
 
-//label,
-//h3 {
-//  display: block;
-//  margin-top: 1rem;
-//  margin-bottom: 0.5rem;
-//  font-size: large;
-//  font-weight: bold;
-//}
-//
-//input {
-//  width: 100%;
-//  padding: 0.25rem;
-//  box-sizing: border-box;
-//  font-size: larger;
-//}
+  span {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--bs-secondary-color);
+  }
+}
+
+.mapArea {
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column-reverse;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .sidebar {
+    width: 100%;
+    overflow: visible;
+  }
+
+  .mapArea {
+    height: 55dvh;
+    flex: none;
+  }
+}
