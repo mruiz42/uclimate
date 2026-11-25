@@ -1,0 +1,20 @@
+{
+  "name": "uclimate",
+  "private": true,
+  "description": "μClimate: weather along your driving route",
+  "scripts": {
+    "setup": "npm install && npm --prefix client install && cd backend && uv sync",
+    "dev": "concurrently -k -n api,web -c blue,green \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "cd backend && uv run fastapi dev app/main.py --port 4200",
+    "dev:web": "npm --prefix client run dev",
+    "test": "npm run test:api && npm run test:web",
+    "test:api": "cd backend && uv run pytest",
+    "test:web": "npm --prefix client test",
+    "check": "cd backend && uv run ruff check && uv run ruff format --check && uv run mypy app tests && cd ../client && npm run typecheck",
+    "build": "npm --prefix client run build",
+    "gen:api": "npm --prefix client run gen:api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

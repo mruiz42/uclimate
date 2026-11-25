@@ -1,3 +1,30 @@
-.Textbox {
+.field {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
 
+.inputWrap {
+  position: relative;
+}
+
+.spinner {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  margin-top: -0.5rem;
+}
+
+.results {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
+  max-height: 18rem;
+  overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  font-size: 0.9rem;
+}
+
+.empty {
+  color: var(--bs-secondary-color);
 }

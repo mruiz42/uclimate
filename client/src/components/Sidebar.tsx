@@ -1,30 +1,27 @@
-import {Button, Container, Dropdown, Form} from "react-bootstrap";
-import LocationSelectForm from "./LocationSelectForm";
-import {forwardRef} from "react";
-
+import type { ComponentProps } from 'react';
+import type { Trip } from '../api/client';
 import style from '../style/App.module.scss';
+import type { Units } from '../units';
+import LocationSelectForm from './LocationSelectForm';
+import WeatherPanel from './WeatherPanel';
 
-const Sidebar = (props: any, ref: any) => {
-  const {formData, setFormData, requestUserLocation, geolocation, map, markers, setMarkers, setDirections,
-    weatherData, setWeatherData} = props;
-  return (
-    <div className={style.sidebar}>
-      <LocationSelectForm
-        formData={formData}
-        setFormData={setFormData}
-        requestUserLocation={requestUserLocation}
-        ref={ref}
-        geolocation={geolocation}
-        map={map}
-        markers={markers}
-        setMarkers={setMarkers}
-        setDirections={setDirections}
-        weatherData={weatherData}
-        setWeatherData={setWeatherData}
-      />
-    </div>
-)
-}
+type Props = ComponentProps<typeof LocationSelectForm> & {
+  trip: Trip | null;
+  units: Units;
+  selected: number | null;
+  onSelectStop: (index: number) => void;
+};
 
+const Sidebar = ({ trip, selected, onSelectStop, ...formProps }: Props) => (
+  <aside className={style.sidebar} data-bs-theme="dark">
+    <h1 className={style.title}>
+      μClimate <span>weather along your route</span>
+    </h1>
+    <LocationSelectForm {...formProps} />
+    {trip && (
+      <WeatherPanel trip={trip} units={formProps.units} selected={selected} onSelect={onSelectStop} />
+    )}
+  </aside>
+);
 
-export default forwardRef(Sidebar);
+export default Sidebar;
